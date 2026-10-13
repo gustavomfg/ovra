@@ -38,16 +38,16 @@ Todos os materiais são Principled BSDF convertidos para glTF PBR. Não há nós
 
 | Material | Cor base | Metálico / rugosidade | Notas |
 | --- | --- | --- | --- |
-| `M_Titanium` | `#23272d` | 1 / 0,46 | Normal map escovado (micro-detalhe) |
-| `M_Ceramic` | `#c4baa8` | 0 / 0,52 | Clearcoat 0,25 (`KHR_materials_clearcoat`) |
-| `M_Brushed` | `#7d838b` | 1 / 0,30 | Normal map escovado; sem anisotropia, ver o guia de integração |
-| `M_Inner` | `#08090b` | 0 / 0,90 | Especular reduzido (`KHR_materials_specular`), para o interior absorver luz |
-| `M_Lens` | `#050608` | 0 / 0,04 | Preto brilhante atrás da íris |
+| `M_Titanium` | `#545a63` | 1 / 0,38 | Normal map escovado; F0 ≈ 0,1 (a cor `#23272d` anterior refletia 2 % e lia como plástico preto) |
+| `M_Ceramic` | `#cfcac0` | 0 / 0,50 | Clearcoat 0,55, rugosidade do coat 0,24 (`KHR_materials_clearcoat`) |
+| `M_Brushed` | `#a4a9b0` | 1 / 0,30 | Normal map escovado; sem anisotropia, ver o guia de integração |
+| `M_Inner` | `#08090b` | 0 / 0,82 | Especular reduzido (`KHR_materials_specular`), para o interior absorver luz |
+| `M_Lens` | `#050608` | 0 / 0,06 | Preto brilhante atrás da íris |
 | `M_SensorGlow` | emissão `#f3dfbd` × 14 | — | Pupila |
 | `M_CoreEmber` | emissão `#ed9b56` × 7 | — | Anel da pupila, núcleo do peito, brilho interno do crânio |
 | `M_FrostSignal` | emissão `#93b8cb` × 3 | — | Anéis dos cubos |
 
-A paleta segue a do web (`config.ts`): grafite frio, âmbar como único calor, gelo como contraponto e marfim na cerâmica.
+A paleta segue a do web (`config.ts`): grafite frio, âmbar como único calor, gelo como contraponto e osso neutro na cerâmica. Na web, `lookdev.ts` acrescenta variação procedural de rugosidade e o shader do sensor da pupila (ver `docs/entity-001-research.md`).
 
 ## Luz dos previews
 

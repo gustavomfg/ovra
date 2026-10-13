@@ -338,7 +338,8 @@ def srgb(hex_color):
 
 
 def principled(name, base, metallic=0.0, roughness=0.5, normal_image=None, normal_strength=0.3,
-               emission=None, emission_strength=0.0, clearcoat=0.0, anisotropy=0.0, uv_scale=1.0, specular=0.5):
+               emission=None, emission_strength=0.0, clearcoat=0.0, anisotropy=0.0, uv_scale=1.0, specular=0.5,
+               coat_roughness=0.18):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nodes = mat.node_tree.nodes
@@ -350,7 +351,7 @@ def principled(name, base, metallic=0.0, roughness=0.5, normal_image=None, norma
     bsdf.inputs["Specular IOR Level"].default_value = specular
     if clearcoat:
         bsdf.inputs["Coat Weight"].default_value = clearcoat
-        bsdf.inputs["Coat Roughness"].default_value = 0.18
+        bsdf.inputs["Coat Roughness"].default_value = coat_roughness
     if anisotropy:
         bsdf.inputs["Anisotropic"].default_value = anisotropy
     if emission is not None:
@@ -377,17 +378,20 @@ def build_materials(texture_size):
     os.makedirs(os.path.join(SOURCE_DIR, "textures"), exist_ok=True)
     normal = brushed_normal_image(texture_size, os.path.join(SOURCE_DIR, "textures", f"brushed_normal_{texture_size}.png"))
     return {
-        # Darkened titanium: the body of every articulated plate.
-        "titanium": principled("M_Titanium", srgb("#23272d"), 1.0, 0.46, normal, 0.25),
-        # Technical ceramic: the face mask and crest. Matte, warm, slightly coated.
-        "ceramic": principled("M_Ceramic", srgb("#c4baa8"), 0.0, 0.52, None, 0.0, clearcoat=0.25),
-        # Brushed metal: hubs, rings, vertebrae, iris blades.
+        # Darkened titanium: the body of every articulated plate. A metal's base color
+        # is its reflectance (F0); ~0.1 linear keeps it dark yet able to hold
+        # reflections. The earlier #23272d (~0.02) read as black plastic.
+        "titanium": principled("M_Titanium", srgb("#545a63"), 1.0, 0.38, normal, 0.35),
+        # Technical ceramic: the face mask and crest. Neutral bone, matte under a
+        # crisp coat so highlights draw lines; warm tints read as brown haze.
+        "ceramic": principled("M_Ceramic", srgb("#cfcac0"), 0.0, 0.5, None, 0.0, clearcoat=0.55, coat_roughness=0.24),
+        # Brushed steel: hubs, rings, vertebrae, iris blades.
         # No anisotropy: Three.js derives its direction from UVs, which primitives lack.
-        "brushed": principled("M_Brushed", srgb("#7d838b"), 1.0, 0.3, normal, 0.4),
+        "brushed": principled("M_Brushed", srgb("#a4a9b0"), 1.0, 0.3, normal, 0.4),
         # Inner structure: absorbs light so the plates read against it.
-        "inner": principled("M_Inner", srgb("#08090b"), 0.0, 0.9, specular=0.08),
+        "inner": principled("M_Inner", srgb("#08090b"), 0.0, 0.82, specular=0.08),
         # Glossy black glass of the lens.
-        "lens": principled("M_Lens", srgb("#050608"), 0.0, 0.04, clearcoat=1.0),
+        "lens": principled("M_Lens", srgb("#050608"), 0.0, 0.06, clearcoat=1.0, coat_roughness=0.03),
         # Emissive: the chest core and the inner glow of the skull.
         "ember": principled("M_CoreEmber", srgb("#2a160a"), 0.0, 0.5, emission=srgb("#ed9b56"), emission_strength=7.0),
         # Emissive: the pupil of the sensor.

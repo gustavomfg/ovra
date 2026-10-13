@@ -45,7 +45,7 @@ A forma principal permanece intacta. O clipe `TRANSFORM` continua no asset como 
 
 ## Câmera e luz
 
-A câmera de repouso usa distância 13,2 e fov de 34°. O rig mantém distância mínima 12,5; no celular, recua conforme a proporção da tela. Framing autoral, humor e parallax têm amortecimento próprio, com offsets discretos.
+A câmera de repouso usa distância 16,2 e fov de 28° (lente mais longa, ver `docs/entity-001-research.md`). O rig mantém distância mínima 15,3; no celular, recua conforme a proporção da tela. Framing autoral, humor e parallax têm amortecimento próprio, com offsets discretos.
 
 A emissão é limitada por material, independente da intensidade alta armazenada nos GLB: teto base 1,25 para o sensor, 1,1 para o âmbar e 0,5 para sinais frios, com modulação máxima de 1,05. Key, rim, luz interna e bloom foram reduzidos para preservar o olho e a leitura das superfícies.
 

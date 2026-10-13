@@ -10,6 +10,8 @@
   <a href="DESIGN.md">Sistema visual</a>
   ·
   <a href="docs/entity-001.md">ENTITY 001 — AWAKENING</a>
+  ·
+  <a href="docs/entity-001-research.md">Pesquisa e passe cinematográfico</a>
 </p>
 
 <p align="center">

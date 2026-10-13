@@ -55,10 +55,10 @@ Em ENTITY 001 — AWAKENING, preservar a cápsula/ovo mecânico do modelo Blende
 
 - A abertura continua em 11,8 s. A câmera se aproxima em uma direção contínua, sem mudanças bruscas de órbita.
 - A ressonância dura 8,8 s: uma preparação discreta, abertura pequena das placas, pausa e retorno. A cápsula permanece montada; sem explosões, nuvens de fragmentos ou mergulho da câmera.
-- Molas com amortecimento crítico preservam a velocidade nas mudanças de alvo. O olhar combina memória interpolada, antecipação limitada e uma hesitação gradual; o corpo acompanha parte do movimento.
+- Molas com amortecimento crítico preservam a velocidade nas mudanças de alvo. O olho conduz: sacadas curtas, perseguição suave e microssacadas; a cabeça segue a fixação e o corpo acompanha parte do movimento. Piscadas são irregulares e acompanham grandes mudanças de olhar.
 - O modelo usa apenas `AWAKEN` e `IDLE` na web. O idle continua durante a ressonância e as mudanças de humor. Pálpebras, olho e giroscópios têm um único controle, sem sobreposição de clipes.
 - Os estados alteram atenção, inclinação, abertura do olho, luz e enquadramento. Alarme e indiferença são sutis, sem tremor artificial ou giros agressivos.
-- Câmera com distância mínima de 12,5 unidades e fov estável na sequência especial. A leitura da cápsula tem prioridade sobre o close.
+- Câmera com lente de 28°, distância mínima de 15,3 unidades e fov estável na sequência especial. A entidade fica em três quartos e encara o visitante. A leitura da cápsula tem prioridade sobre o close.
 - Com movimento reduzido: sem abertura espacial, deriva, perseguição do cursor ou câmera móvel. A metamorfose vira um pulso suave de luz, e ativar a preferência assenta a cena.
 
 ## Acessibilidade

@@ -15,6 +15,10 @@ const FinishShader = {
     uVignette: { value: 0.55 },
     uGrain: { value: 0.009 },
     uAberration: { value: 0.00065 },
+    // Display-space grade: 0 leaves the image untouched.
+    uGrade: { value: 0 },
+    // Darkens the lower frame so a figure's base dissolves into the void.
+    uFloor: { value: 0 },
     // xy: ripple origin in UV space, z: amplitude, w: unused.
     uRipple: { value: new Vector4(0.5, 0.5, 0, 0) },
   },
@@ -27,7 +31,7 @@ const FinishShader = {
   `,
   fragmentShader: /* glsl */ `
     uniform sampler2D tDiffuse;
-    uniform float uTime, uVignette, uGrain, uAberration;
+    uniform float uTime, uVignette, uGrain, uAberration, uGrade, uFloor;
     uniform vec4 uRipple;
     varying vec2 vUv;
 
@@ -51,8 +55,15 @@ const FinishShader = {
         texture2D(tDiffuse, uv - split).b
       );
 
+      // Gentle S-curve around mid grey and a cool lift confined to the shadows.
+      vec3 curved = color * color * (3.0 - 2.0 * color);
+      float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
+      vec3 graded = mix(color, curved, 0.35) + vec3(-0.004, 0.003, 0.008) * (1.0 - smoothstep(0.0, 0.25, luma));
+      color = mix(color, graded, uGrade);
+
       float vignette = (1.0 - smoothstep(0.18, 0.92, radius * (1.0 + uVignette * 0.5)));
       color *= mix(1.0 - uVignette, 1.0, vignette);
+      color *= 1.0 - uFloor * (1.0 - smoothstep(0.0, 0.42, vUv.y));
       color += (hash(vUv * 1024.0 + fract(uTime)) - 0.5) * uGrain;
       gl_FragColor = vec4(max(color, 0.0), 1.0);
     }

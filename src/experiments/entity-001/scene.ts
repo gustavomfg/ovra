@@ -1,6 +1,6 @@
 import {
   ACESFilmicToneMapping, Color, DirectionalLight, FogExp2, Group, Plane,
-  PointLight, Raycaster, Scene, Vector2, Vector3, WebGLRenderer,
+  PointLight, Raycaster, Scene, SpotLight, Vector2, Vector3, WebGLRenderer,
 } from "three";
 import { CameraRig } from "../../core/camera";
 import { createFrameLoop } from "../../core/frameLoop";
@@ -30,11 +30,19 @@ export type EntityScene = {
   leave(): void; tap(x: number, y: number): void; hold(active: boolean): void;
   metamorphose(): boolean; dispose(): void;
 };
+// Reflections are drawn by long strips instead of one frontal panel: a vertical key
+// strip at camera-left, a thin crown line and two cold rims behind. The face is
+// lit from the side, so the ceramic reads as a volume rather than a flat blob.
 const SOFTBOXES: Softbox[] = [
-  { color: "#d1dbe0", intensity: 2.1, position: [-3, 6, 9], size: [9, 5] },
-  { color: "#82b5ce", intensity: 2.3, position: [6, 2, -5], size: [2, 10] },
-  { color: "#c6d8dc", intensity: 1.6, position: [-7, 1, 2], size: [1.2, 9] },
-  { color: "#daa06c", intensity: 0.4, position: [3, -3, 5], size: [3, 2] },
+  { color: "#e6ded2", intensity: 2.6, position: [-9, 4, 5], size: [2.2, 11] },
+  { color: "#d4dde2", intensity: 1.3, position: [-1, 10, 1.5], size: [7, 1.4] },
+  { color: "#8fbad2", intensity: 2.5, position: [7, 1.5, -6], size: [1.1, 11] },
+  { color: "#a9c4d4", intensity: 1.9, position: [-7, 2.5, -6.5], size: [0.9, 8] },
+  { color: "#c9d3d8", intensity: 0.22, position: [3, -1, 9], size: [5, 3] },
+  // Eye light: a small card ~40° off the lens axis. Its catchlight lands on the dark
+  // glass beside the pupil, where a highlight reads; on the pupil it would vanish.
+  { color: "#f1ece4", intensity: 5.5, position: [-6.5, 6.2, 11], size: [1.9, 1.2] },
+  { color: "#daa06c", intensity: 0.3, position: [2, -7, 4], size: [4, 2] },
 ];
 
 export function createEntityScene(options: SceneOptions): EntityScene {
@@ -48,14 +56,18 @@ export function createEntityScene(options: SceneOptions): EntityScene {
   });
   try {
     renderer.setClearColor(ENTITY.palette.void, 1);
-    renderer.toneMapping = ACESFilmicToneMapping; renderer.toneMappingExposure = 0.98;
+    renderer.toneMapping = ACESFilmicToneMapping; renderer.toneMappingExposure = 1.04;
     const scene = new Scene(); scene.fog = new FogExp2(ENTITY.palette.void, 0.018);
     const environment = createStudioEnvironment(renderer, SOFTBOXES, ENTITY.palette.void);
     releases.push(() => disposeEnvironment(environment)); scene.environment = environment;
-    const key = new DirectionalLight("#d9e2e3", 1.4); key.position.set(-4, 6, 7);
-    const rim = new DirectionalLight(ENTITY.palette.frost, 1.45); rim.position.set(4, 2, -5);
+    // Side key from high camera-left. A spot, so the neck and shoulders fall into
+    // the void and the skull keeps the light; two cold rims cut the silhouette.
+    const key = new SpotLight("#ece9e3", 0, 60, 0.24, 1, 2); key.position.set(-12, 8, 7);
+    key.target.position.set(0, 1.2, 0); scene.add(key.target);
+    const rim = new DirectionalLight(ENTITY.palette.frost, 1.45); rim.position.set(6, 2.5, -6);
+    const counter = new DirectionalLight("#b9cfdc", 0); counter.position.set(-6, 3, -7);
     const heart = new PointLight(ENTITY.palette.ember, 0, 5, 2);
-    heart.position.set(0, ENTITY.eye.y, ENTITY.eye.z - 0.25); scene.add(key, rim, heart);
+    heart.position.set(0, ENTITY.eye.y, ENTITY.eye.z - 0.25); scene.add(key, rim, counter, heart);
 
     const rig = new CameraRig(reduced ? CAMERA_BASE : CAMERA_INTRO, 2.2, MIN_CAMERA_DISTANCE);
     const group = new Group(); group.rotation.order = "YXZ"; scene.add(group);
@@ -105,6 +117,12 @@ export function createEntityScene(options: SceneOptions): EntityScene {
     releases.push(() => performance.dispose());
     canvas.dataset.phase = performance.phase;
     const director = performance.director;
+    // A narrow portrait frame has no room for the halo of a full three-quarter turn.
+    const restYaw = ENTITY.restYaw * (options.compact ? 0.55 : 1);
+    // Development-only motion probe for the validation harness; stripped in builds.
+    const probe = import.meta.env.DEV ? { time: 0, yaw: 0, pitch: 0, roll: 0, headYaw: 0, headPitch: 0,
+      eyeX: 0, eyeY: 0, blink: 0, openness: 0, camX: 0, camY: 0, camZ: 0 } : null;
+    if (probe) (window as unknown as { __ovraProbe?: typeof probe }).__ovraProbe = probe;
     function resolveCursor() {
       if (!present) return false;
       group.updateMatrixWorld(true); raycaster.setFromCamera(cursor, rig.camera);
@@ -140,29 +158,37 @@ export function createEntityScene(options: SceneOptions): EntityScene {
       const breath = Math.sin(breathPhase * 1.5);
       const wander = Math.sin(elapsed * 0.12) * 0.035;
       const yawGoal = (lerp(wander, gaze.x * 0.34, intent.gaze) + intent.away * 0.38) * weight;
-      const pitchGoal = (intent.tilt - gaze.y * 0.11 * intent.gaze) * weight;
+      // Heads travel in arcs: a fast turn dips slightly and leans into the turn.
+      const turning = clamp(Math.abs(yaw.velocity) * 1.6, 0, 1);
+      const pitchGoal = (intent.tilt - gaze.y * 0.11 * intent.gaze + turning * 0.035) * weight;
+      const rollGoal = (intent.roll * 0.5 + clamp(-yaw.velocity * 0.05, -0.03, 0.03)) * weight;
       let headYaw = 0, headPitch = 0;
       if (reduced) {
-        yaw.snap(0); pitch.snap(0); roll.snap(0); lean.snap(0); group.rotation.set(0, 0, 0);
+        yaw.snap(0); pitch.snap(0); roll.snap(0); lean.snap(0); group.rotation.set(0, character ? restYaw : 0, 0);
       } else {
         const y = yaw.step(yawGoal, frameDt), p = pitch.step(pitchGoal, frameDt);
         const follow = bodyFollow.step(character ? 0.38 + intent.away * 0.32 : 1, frameDt);
         headYaw = y * (1 - follow); headPitch = p * (1 - follow);
-        group.rotation.set(p * follow, y * follow, roll.step(intent.roll * 0.5 * weight, frameDt));
+        group.rotation.set(p * follow, (character ? restYaw : 0) + y * follow, roll.step(rollGoal, frameDt));
       }
       const leanValue = reduced ? 0 : lean.step(intent.lean * weight, frameDt);
       group.position.set(0, character ? 0 : breath * 0.014 * motion, leanValue);
       group.scale.setScalar(character ? 1 : 1 + breath * 0.003 * motion);
       const light = clamp(director.core * (0.8 + intent.light * 0.2) + director.flash * 0.2 + performance.charge * 0.06, 0, 1.08);
-      const openness = reduced ? 0.85 : director.eye * intent.openness * (1 - gaze.blink * 0.65);
+      const openness = reduced ? 0.85 : director.eye * intent.openness * (1 - gaze.blink * 0.92);
+      // The eye leads; once the head arrives it carries part of the turn, and the
+      // eye recentres in its socket.
+      const eyeX = (gaze.eyeX - gaze.x * 0.55 * intent.gaze * weight) * motion;
+      const eyeY = (gaze.eyeY - gaze.y * 0.45 * intent.gaze * weight) * motion;
       if (character) {
         character.update({ dt: frameDt, phase: performance.phase, storyTime: performance.time,
           mood: temperament.mood, reduced, light, warmth: intent.warmth, openness,
-          lookYaw: headYaw, lookPitch: headPitch, gazeX: gaze.x * motion, gazeY: gaze.y * motion,
+          lookYaw: headYaw, lookPitch: headPitch, restYaw, gazeX: eyeX, gazeY: eyeY,
+          dilation: clamp(intent.dilation + (1 - light) * 0.15),
           opening: director.opening, resonance: director.resonance });
       } else if (modelSettled) {
         kernel.update({ light, warmth: intent.warmth, elapsed: reduced ? 0 : elapsed,
-          openness, gazeX: gaze.x * motion, gazeY: gaze.y * motion });
+          openness, gazeX: eyeX, gazeY: eyeY });
         shell.update({ dt: frameDt, reveal: director.reveal, motion, glow: light,
           breath, opening: director.opening, scan: director.scan, trace: director.rim });
       }
@@ -176,8 +202,9 @@ export function createEntityScene(options: SceneOptions): EntityScene {
       canvas.dataset.particleMode = "off";
 
       scene.environmentIntensity = 0.05 + director.key * 0.6;
-      key.intensity = director.key * 1.4;
-      rim.intensity = director.rim * 1.45;
+      key.intensity = director.key * 420;
+      rim.intensity = director.rim * 1.65;
+      counter.intensity = director.rim * 1.1;
       lightColor.copy(frost).lerp(ember, intent.warmth); heart.color.copy(lightColor);
       heart.intensity = light * 0.5;
       dust.update(reduced ? 0 : elapsed, temperament.attention * motion, light * director.atmosphere);
@@ -188,8 +215,15 @@ export function createEntityScene(options: SceneOptions): EntityScene {
       atmosphere.update(rig.camera, elapsed, director.atmosphere, light, director.resonance, reduced, character ? 0 : 1);
       post.bloom.strength = 0.14 + light * 0.05 + director.resonance * 0.02;
       post.finish.uniforms.uVignette.value = 0.4;
+      post.finish.uniforms.uGrade.value = 1;
+      post.finish.uniforms.uFloor.value = options.compact ? 0.78 : 0.55;
       post.finish.uniforms.uAberration.value = reduced ? 0 : 0.00035;
       post.render(frameDt, reduced ? 0 : elapsed);
+      if (probe) {
+        Object.assign(probe, { time: elapsed, yaw: group.rotation.y, pitch: group.rotation.x, roll: group.rotation.z,
+          headYaw, headPitch, eyeX, eyeY, blink: gaze.blink, openness,
+          camX: rig.camera.position.x, camY: rig.camera.position.y, camZ: rig.camera.position.z });
+      }
       if (!canvas.dataset.ready) canvas.dataset.ready = "true";
       qualityTime += frameDt; qualityFrames++;
       if (frameDt > 0.075) slowFrames++;

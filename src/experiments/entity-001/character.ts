@@ -1,10 +1,12 @@
 import {
-  AnimationMixer, Color, Euler, LoopOnce, LoopRepeat, MeshStandardMaterial, Quaternion, Vector3,
+  AdditiveBlending, AnimationMixer, Color, Euler, LoopOnce, LoopRepeat, Mesh as MeshObject, MeshPhysicalMaterial,
+  MeshStandardMaterial, Quaternion, SphereGeometry, Vector3,
   type AnimationAction, type AnimationClip, type BufferGeometry, type Material, type Mesh, type Object3D,
 } from "three";
 import { loadGltf } from "../../core/assets";
 import { clamp, damp, smoothstep } from "../../core/math";
 import { Spring } from "../../core/spring";
+import { applyLook, makeSensor, type SensorUniforms } from "./lookdev";
 import type { Mood } from "./behavior";
 import type { Phase } from "./performance";
 
@@ -24,7 +26,13 @@ export type CharacterInput = {
   dt: number; phase: Phase; storyTime: number; mood: Mood; reduced: boolean;
   light: number; warmth: number; openness: number; lookYaw: number; lookPitch: number;
   gazeX: number; gazeY: number; opening?: number; resonance?: number;
+  // Body turn away from the camera (radians). The neck takes most of it back and
+  // the eye the rest, so the figure stands in three-quarter but still faces you.
+  restYaw?: number;
+  // Pupil dilation 0..1: wide when attentive or in low light, narrow when startled.
+  dilation?: number;
 };
+const REST_HEAD_SHARE = 0.62;
 type Plate = { node: Object3D; position: Vector3; quaternion: Quaternion; offset: Vector3; openRotation: Quaternion };
 
 export class Character {
@@ -46,13 +54,16 @@ export class Character {
   private readonly plates: Plate[] = [];
   private readonly glow: { material: MeshStandardMaterial; ceiling: number }[] = [];
   private readonly ember: MeshStandardMaterial[] = [];
+  private sensor: SensorUniforms | null = null;
   private readonly ownedMaterials: Material[] = [];
   private readonly ownedGeometry: BufferGeometry[] = [];
   private readonly emberColor = new Color("#ed9b56");
   private readonly frostColor = new Color("#93b8cb");
-  private readonly eyeOpening = new Spring(0.85, 64);
+  // Fast enough to let a 0.1 s blink through; mood changes are eased upstream.
+  private readonly eyeOpening = new Spring(0.85, 420);
   private readonly plateOpening = new Spring(0, 20);
   private readonly emission = new Spring(0, 25);
+  private readonly aperture = new Spring(0.31, 30);
   private readonly rotation = new Quaternion();
   private readonly offsetEuler = new Euler(0, 0, 0, "YXZ");
   private current: ClipName | null = null;
@@ -84,6 +95,10 @@ export class Character {
       return node ? [{ node, rest: node.quaternion.clone(), axis, phase }] : [];
     });
 
+    // The loose octahedral fragments have no mechanical role and read as debris
+    // around a figure whose parts otherwise all belong to one hinge system.
+    root.getObjectByName("CTRL_FLOAT")?.traverse(node => { node.visible = false; });
+
     // Cache data is immutable. Each mounted character owns its geometry and
     // materials; embedded textures remain shared with the loader cache.
     const materials = new Map<Material, Material>();
@@ -106,17 +121,20 @@ export class Character {
         let material = materials.get(source);
         if (material) return material;
         material = source.clone(); materials.set(source, material); this.ownedMaterials.push(material);
+        applyLook(material);
         const standard = material as MeshStandardMaterial;
         if (standard.isMeshStandardMaterial && standard.emissiveIntensity > 0 && standard.emissive.getHex() !== 0) {
           const ceiling = standard.name === "M_SensorGlow" ? 1.25 : standard.name === "M_CoreEmber" ? 1.1 : 0.5;
           this.glow.push({ material: standard, ceiling });
           standard.emissiveIntensity = 0;
           if (standard.name === "M_CoreEmber") this.ember.push(standard);
+          if (standard.name === "M_SensorGlow") this.sensor = makeSensor(standard, 0.016);
         }
         return material;
       };
       mesh.material = Array.isArray(mesh.material) ? mesh.material.map(own) : own(mesh.material);
     });
+    this.addCornea(root.getObjectByName("CTRL_EYE"));
     this.mixer = new AnimationMixer(root);
     for (const name of ["AWAKEN", "IDLE"] as const) {
       const authored = animations.find(clip => clip.name === name);
@@ -128,6 +146,24 @@ export class Character {
       action.clampWhenFinished = name === "AWAKEN";
       this.actions.set(name, action);
     }
+  }
+  // A thin glass cap over the lens. Additive with a black base, it contributes only
+  // its reflection: the moving catchlight that makes an eye read as alive.
+  private addCornea(eye: Object3D | undefined) {
+    if (!eye) return;
+    const radius = 0.09, base = 0.044, cap = Math.asin(base / radius);
+    const geometry = new SphereGeometry(radius, 40, 8, 0, Math.PI * 2, 0, cap);
+    geometry.rotateX(Math.PI / 2);
+    geometry.translate(0, 0.0056, 0.1846 - radius * Math.cos(cap));
+    const material = new MeshPhysicalMaterial({
+      color: 0x000000, roughness: 0.03, metalness: 0, ior: 2.3, envMapIntensity: 5,
+      transparent: true, depthWrite: false, blending: AdditiveBlending,
+    });
+    material.name = "M_Cornea";
+    const cornea = new MeshObject(geometry, material);
+    cornea.name = "geo_cornea"; cornea.renderOrder = 2;
+    eye.add(cornea);
+    this.ownedGeometry.push(geometry); this.ownedMaterials.push(material);
   }
   static async load(url: string) {
     const gltf = await loadGltf(url);
@@ -152,10 +188,11 @@ export class Character {
     const openness = input.reduced ? 0.85 : this.eyeOpening.step(clamp(input.openness, 0.15, 1), dt);
     const opening = input.reduced ? 0 : this.plateOpening.step(clamp(input.opening ?? 0, -0.025, 0.16), dt);
     if (input.reduced) { this.eyeOpening.snap(0.85); this.plateOpening.snap(0); }
+    const rest = input.restYaw ?? 0;
     this.look.quaternion.copy(this.lookRest).multiply(this.rotation.setFromEuler(
-      this.offsetEuler.set(input.reduced ? 0 : input.lookPitch, input.reduced ? 0 : input.lookYaw, 0)));
+      this.offsetEuler.set(input.reduced ? 0 : input.lookPitch, (input.reduced ? 0 : input.lookYaw) - rest * REST_HEAD_SHARE, 0)));
     this.gaze.quaternion.copy(this.gazeRest).multiply(this.rotation.setFromEuler(
-      this.offsetEuler.set(input.reduced ? 0 : -input.gazeY * 0.065, input.reduced ? 0 : input.gazeX * 0.18, 0)));
+      this.offsetEuler.set(input.reduced ? 0 : -input.gazeY * 0.065, (input.reduced ? 0 : input.gazeX * 0.18) - rest * (1 - REST_HEAD_SHARE), 0)));
     const closing = LID_TRAVEL * (1 - openness);
     this.upper.rotation.x = Math.min(0, this.lidRest[0] + closing);
     this.lower.rotation.x = Math.max(0, this.lidRest[1] - closing);
@@ -173,6 +210,11 @@ export class Character {
     this.iris.quaternion.copy(this.irisRest).multiply(this.rotation.setFromEuler(
       this.offsetEuler.set(0, 0, Math.sin(this.focusTime * 0.23) * 0.035)));
     this.pupil.scale.copy(this.pupilRest).multiplyScalar(input.reduced ? 1 : 0.94 + level * 0.06);
+    if (this.sensor) {
+      const aperture = 0.2 + 0.22 * clamp(input.dilation ?? 0.5);
+      this.sensor.uAperture.value = input.reduced ? 0.31 : this.aperture.step(aperture, dt);
+      this.sensor.uFocus.value = this.focusTime;
+    }
     this.gyros.forEach((gyro, i) => {
       if (!input.reduced) gyro.phase += dt * (i ? -0.052 : 0.06) * (1 + (input.resonance ?? 0) * 0.2);
       gyro.node.quaternion.copy(gyro.rest).multiply(this.rotation.setFromAxisAngle(gyro.axis, gyro.phase));

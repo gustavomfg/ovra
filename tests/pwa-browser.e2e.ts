@@ -38,11 +38,11 @@ test.beforeAll(async () => {
 
 test.afterAll(stopPreview);
 
-test("renders AWAKENING and reopens the shell offline", async ({ context, page }) => {
-  await page.goto(`${appBase}#/entity-001`);
+test("renders UMBRA and reopens the shell offline", async ({ context, page }) => {
+  await page.goto(`${appBase}#/entity-002`);
   await expect(page).toHaveTitle("OVRA — Experimental Creative Lab");
   await expect(page.getByText("OVRA", { exact: true })).toBeVisible();
-  const experiment = page.getByRole("region", { name: "ENTITY 001 — AWAKENING" });
+  const experiment = page.getByRole("region", { name: "ENTITY 002 — UMBRA" });
   await expect(experiment).toBeVisible();
 
   // The first frame is drawn once WebGL2 is available; the fallback is drawn otherwise.
@@ -75,7 +75,7 @@ test("renders AWAKENING and reopens the shell offline", async ({ context, page }
   });
   expect(cachedUrls.some((url) => url.endsWith("/manifest.webmanifest"))).toBe(true);
   expect(cachedUrls.some((url) => /\/assets\/index-[^/]+\.js$/.test(url))).toBe(true);
-  expect(cachedUrls.some((url) => /\/assets\/Entity001-[^/]+\.js$/.test(url))).toBe(true);
+  expect(cachedUrls.some((url) => /\/assets\/Entity002-[^/]+\.js$/.test(url))).toBe(true);
 
   const manifest = await page.evaluate(async () => {
     const manifestUrl = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')?.href;
@@ -86,7 +86,7 @@ test("renders AWAKENING and reopens the shell offline", async ({ context, page }
 
   await stopPreview();
   await page.reload();
-  await expect(page.getByRole("region", { name: "ENTITY 001 — AWAKENING" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "ENTITY 002 — UMBRA" })).toBeVisible();
 
   await context.close();
 });

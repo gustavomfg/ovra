@@ -15,7 +15,7 @@ type ServiceWorkerEvent = {
 describe("PWA offline shell", () => {
   it("reopens the shell and experiment chunks offline after the first install", async () => {
     const scope = "https://example.test/ovra/";
-    const urls = ["./", "./index.html", "./assets/index-deadbeef.js", "./assets/Entity001-cafe.js"];
+    const urls = ["./", "./index.html", "./assets/index-deadbeef.js", "./assets/Entity002-cafe.js"];
     const source = injectPrecacheManifest(
       readFileSync(new URL("../public/sw.js", import.meta.url), "utf8"),
       "test-build",
@@ -90,11 +90,11 @@ describe("PWA offline shell", () => {
 
     let chunkResponse: Promise<Response> | undefined;
     listeners.get("fetch")?.({
-      request: { method: "GET", mode: "cors", url: `${scope}assets/Entity001-cafe.js` },
+      request: { method: "GET", mode: "cors", url: `${scope}assets/Entity002-cafe.js` },
       waitUntil: () => undefined,
       respondWith: (promise) => { chunkResponse = promise; },
     });
-    expect(await (await chunkResponse)?.text()).toContain("Entity001-cafe.js");
+    expect(await (await chunkResponse)?.text()).toContain("Entity002-cafe.js");
     expect(fetchMock).toHaveBeenCalledTimes(urls.length + 1);
   });
 });

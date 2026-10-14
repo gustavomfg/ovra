@@ -14,10 +14,10 @@ import build_umbra as U  # noqa: E402
 
 SHOTS = {
     # camera position, target, focal length
-    "front": ((0.0, -3.4, 1.15), (0.0, 0.0, 1.05), 50),
-    "three_quarter": ((-1.7, -2.9, 1.45), (0.0, 0.0, 1.1), 50),
-    "profile": ((3.3, 0.0, 1.15), (0.0, 0.0, 1.05), 50),
-    "face": ((-0.35, -1.25, 1.42), (0.0, 0.0, 1.33), 70),
+    "front": ((0.0, -4.6, 1.18), (0.0, 0.0, 1.22), 55),
+    "three_quarter": ((-2.1, -4.2, 1.6), (0.0, 0.0, 1.22), 55),
+    "profile": ((4.6, 0.0, 1.18), (0.0, 0.0, 1.22), 55),
+    "face": ((-0.25, -2.0, 1.75), (0.0, 0.0, 1.60), 55),
 }
 
 
@@ -38,19 +38,19 @@ def area(name, location, energy, color, size, target=(0, 0, 1.1)):
 def stage():
     scene = bpy.context.scene
     scene.render.engine = "BLENDER_EEVEE"
-    scene.render.resolution_x, scene.render.resolution_y = 900, 1100
+    scene.render.resolution_x, scene.render.resolution_y = 720, 900
     scene.eevee.taa_render_samples = 32
     world = bpy.data.worlds.new("void")
     world.use_nodes = True
     bg = next(n for n in world.node_tree.nodes if n.type == "BACKGROUND")
-    bg.inputs["Color"].default_value = (0.012, 0.008, 0.016, 1)
+    bg.inputs["Color"].default_value = (0.003, 0.002, 0.004, 1)
     bg.inputs["Strength"].default_value = 1.0
     scene.world = world
     # Cold moon rim from behind-left, crimson under-glow, violet fill.
     area("moon", (-2.2, 2.5, 3.2), 900, (0.78, 0.8, 1.0), 1.2)
     area("rim", (2.4, 2.0, 1.6), 500, (0.75, 0.55, 1.0), 1.0)
     area("key", (-2.6, -2.4, 2.4), 260, (0.85, 0.82, 0.95), 1.5)
-    area("ember", (0.4, -1.4, -0.3), 120, (1.0, 0.15, 0.2), 1.0)
+    area("ember", (0.4, -1.4, -0.3), 35, (1.0, 0.28, 0.5), 1.0)
     cam_data = bpy.data.cameras.new("cam")
     cam = bpy.data.objects.new("cam", cam_data)
     scene.collection.objects.link(cam)

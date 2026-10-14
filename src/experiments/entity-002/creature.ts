@@ -16,6 +16,7 @@ export type CreatureInput = {
   dt: number; time: number; reduced: boolean;
   // 0..1 during the opening, 1 afterwards.
   materialize: number;
+  eyePresence?: number;
   // Head turn (radians) and eye-in-head gaze (-1..1).
   lookYaw: number; lookPitch: number; lookRoll: number; gazeX: number; gazeY: number;
   // Lid opening 0..1 (blinks included).
@@ -69,6 +70,10 @@ export class Creature {
       const node = find(name);
       this.joints[name] = { node, rest: node.quaternion.clone() };
     }
+    for (const side of ["L", "R"]) for (let i = 0; i < 5; i++) {
+      const node = find(`CTRL_CLAW_${side}_${i}`);
+      this.joints[node.name] = { node, rest: node.quaternion.clone() };
+    }
     // Each mounted creature owns its geometry and materials; the loader cache stays intact.
     const materials = new Map<Material, Material>();
     root.traverse(node => {
@@ -76,6 +81,7 @@ export class Creature {
       if (!mesh.isMesh) return;
       mesh.geometry = mesh.geometry.clone(); this.ownedGeometry.push(mesh.geometry);
       mesh.frustumCulled = false;
+      mesh.castShadow = true; mesh.receiveShadow = true;
       const source = mesh.material as Material;
       const role = String(mesh.userData.ovra_role ?? mesh.parent?.userData.ovra_role ?? "");
       const side = mesh.name.endsWith("_R") ? -1 : 1;
@@ -84,7 +90,7 @@ export class Creature {
       if (!material) {
         material = source.clone(); this.ownedMaterials.push(material);
         if (role !== "eye") materials.set(source, material);
-        const kind = role === "tatter" ? "tatter" : role === "eye" ? "eye" : role === "gem" || role === "maw" ? "glow" : "skin";
+        const kind = role === "tatter" ? "tatter" : role === "eye" ? "eye" : role === "gem" || role === "maw" ? "glow" : material.name === "M_Bone" ? "plain" : "skin";
         dress(material, this.uniforms, { kind, side });
         if (role === "maw") this.maw.push(material);
         if (role === "gem") this.gem.push(material);
@@ -108,17 +114,17 @@ export class Creature {
     u.uMaterialize.value = input.materialize;
     const startle = this.startle.step(input.startle, dt);
     u.uFlare.value = startle * motion;
-    u.uWind.value = motion * (0.8 + startle * 0.8);
-    u.uEmber.value = 0.85 + input.amusement * 0.5 + startle * 0.4;
+    u.uWind.value = motion * (0.8 + startle * .3);
+    u.uEmber.value = .5 + input.amusement * .18 + startle * .2;
     u.uGaze.value.x = input.gazeX * motion; u.uGaze.value.y = input.gazeY * motion;
-    u.uSlit.value = 0.16 + 0.34 * clamp(input.dilation);
-    u.uEyeGlow.value = input.materialize ** 3 * (0.9 + input.amusement * 0.25);
+    u.uSlit.value = input.reduced ? .13 : .075 + .14 * clamp(input.dilation);
+    u.uEyeGlow.value = (input.eyePresence ?? input.materialize) * (.85 + input.amusement * .15);
 
     // Floating: a slow heave with a hitch, never a metronome; a flinch pulls back.
-    const heave = (Math.sin(t * 0.85) + Math.sin(t * 1.37 + 0.6) * 0.35) * 0.022 * motion;
+    const heave = (Math.sin(t * .60) + Math.sin(t * .93 + .6) * .25) * .017 * motion;
     this.body.position.y = this.bodyRest + heave;
     this.body.position.z = -startle * 0.06 * motion;
-    this.body.rotation.z = Math.sin(t * 0.43) * 0.025 * motion;
+    this.body.rotation.z = Math.sin(t * .28) * .018 * motion;
 
     this.look.quaternion.copy(this.lookRest).multiply(this.rotation.setFromEuler(
       this.euler.set(input.lookPitch * motion - startle * 0.12 * motion, input.lookYaw * motion, input.lookRoll * motion)));
@@ -137,20 +143,24 @@ export class Creature {
       const breathe = Math.sin(t * 0.85 + side) * 0.05 * motion;
       const flinch = startle * motion;
       this.pose(`CTRL_SHOULDER_${key}`, breathe,
-        -side * (0.35 + 0.75 * toward - flinch * 0.45),
-        side * (-0.2 + 0.25 * toward + input.reachY * 0.25 * toward + flinch * 0.35));
-      this.pose(`CTRL_ELBOW_${key}`, -0.2 * (1 - toward) + flinch * 0.2, -side * (0.3 - 0.28 * toward), 0);
-      const flex = (Math.sin(t * 1.3 + side * 2) * 0.5 + 0.5) * 0.25 * motion;
+        -side * (.32 * toward - flinch * .14),
+        side * (.09 * toward + input.reachY * .12 * toward + flinch * .12));
+      this.pose(`CTRL_ELBOW_${key}`, -.10 * toward + flinch * .09, -side * .08 * toward, 0);
+      const flex = (Math.sin(t * .71 + side * 2) * .5 + .5) * .06 * motion;
       // Claws open as the hand reaches and curl when it rests.
-      this.pose(`CTRL_WRIST_${key}`, flex * (1 - toward) - 0.25 * toward, 0, side * (input.amusement * 0.15 * Math.sin(t * 9) * motion));
+      this.pose(`CTRL_WRIST_${key}`, flex * (1 - toward) - .12 * toward, 0, side * input.amusement * .035 * motion);
+      for (let i = 0; i < 5; i++) {
+        const curl = (.035 + Math.sin(t * .6 + i * .42 + side) * .024) * motion;
+        this.pose(`CTRL_CLAW_${key}_${i}`, curl - toward * .07, 0, side * toward * (i - 2) * .012);
+      }
     }
     // Amusement shakes the head in a silent laugh.
-    this.pose("CTRL_HEAD", input.amusement * Math.sin(t * 13) * 0.025 * motion, 0, 0);
+    this.pose("CTRL_HEAD", input.amusement * Math.sin(t * 2.4) * .018 * motion, 0, -.045);
 
-    const grin = 0.4 + input.amusement * 2.4 + startle * 0.6;
+    const grin = .08 + input.amusement * .13 + startle * .04;
     for (const material of this.maw) (material as unknown as { emissiveIntensity: number }).emissiveIntensity = grin * input.materialize;
-    const beat = Math.pow(Math.max(0, Math.sin(t * 2.1)), 12) * motion;
-    for (const material of this.gem) (material as unknown as { emissiveIntensity: number }).emissiveIntensity = (0.9 + beat * 1.6) * input.materialize;
+    const beat = (1 + Math.sin(t * .9)) * .08 * motion;
+    for (const material of this.gem) (material as unknown as { emissiveIntensity: number }).emissiveIntensity = (.55 + beat) * input.materialize;
   }
 
   private pose(name: string, x: number, y: number, z: number) {

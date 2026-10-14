@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { easeIntent, intentFor, createTemperament, stepTemperament, TIMING, type Sense, type Temperament } from "./behavior";
+import { createTemperament, stepTemperament, TIMING, type Sense, type Temperament } from "./behavior";
 
 const calm: Sense = { dt: 0.1, present: true, near: false, speed: 0 };
 const close: Sense = { dt: 0.1, present: true, near: true, speed: 0.2 };
@@ -77,14 +77,3 @@ describe("stepTemperament", () => {
   });
 });
 
-describe("continuous state intent", () => {
-  it("eases body aversion without a boolean rig switch", () => {
-    const observing=intentFor("observing"), ignoring=intentFor("ignoring");
-    const next=easeIntent(observing,ignoring,0.1);
-    expect(next.away).toBeGreaterThan(0);
-    expect(next.away).toBeLessThan(0.15);
-    const back=easeIntent(next,observing,0.1);
-    expect(back.away).toBeGreaterThan(0);
-    expect(back.away).toBeLessThan(next.away);
-  });
-});

@@ -9,7 +9,7 @@
 .entity-name { color: var(--ovra-ink); }
 .entity-name span { color: var(--ovra-muted); }
 .entity-readout { display: flex; align-items: center; gap: 9px; margin-top: 12px; color: var(--ovra-muted); }
-.entity-state-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ovra-ember); }
+.entity-state-dot { width: 3px; height: 3px; border-radius: 50%; background: #dc638c; }
 .entity-hint { position: absolute; left: 50%; bottom: 32px; transform: translateX(-50%); color: var(--ovra-muted); opacity: 0; pointer-events: none; transition: opacity 1200ms ease; white-space: nowrap; }
 .entity-hint.is-visible { opacity: 1; }
 .entity-controls { position: absolute; right: max(32px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 26px; }

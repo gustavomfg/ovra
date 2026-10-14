@@ -1,15 +1,14 @@
 import {
-  ACESFilmicToneMapping, Color, DirectionalLight, FogExp2, Group, PointLight, Scene, Vector3, WebGLRenderer,
+  ACESFilmicToneMapping, DirectionalLight, FogExp2, Group, PCFShadowMap, PointLight, Scene, Vector3, WebGLRenderer,
 } from "three";
 import { CameraRig, type CameraGoal } from "../../core/camera";
 import { createFrameLoop } from "../../core/frameLoop";
 import { createStudioEnvironment, disposeEnvironment, type Softbox } from "../../core/lighting";
-import { clamp, damp, lerp } from "../../core/math";
+import { clamp, damp, lerp, smoothstep } from "../../core/math";
 import { createPostProcessing } from "../../core/postprocessing";
 import { Spring } from "../../core/spring";
-import { createTemperament, stepTemperament } from "../entity-001/behavior";
-import { Perception } from "../entity-001/perception";
-import { Backdrop } from "./backdrop";
+import { createTemperament, stepTemperament } from "./behavior";
+import { Perception } from "./perception";
 import { Creature, creatureUrl } from "./creature";
 import { INTRO_SECONDS, LABELS, laughEnvelope, opening, reactionFor, type Reaction } from "./direction";
 import { Smoke } from "./smoke";
@@ -24,17 +23,14 @@ export type UmbraScene = {
   leave(): void; tap(x: number, y: number): void; dispose(): void;
 };
 
-const VOID = "#07050a";
-// A low, heroic camera looking up at the creature, offset so the eclipse sits
-// over its right shoulder.
-export const CAMERA: CameraGoal = { distance: 19.5, orbit: 0.24, height: -0.1, fov: 32 };
-const CAMERA_OPENING: CameraGoal = { distance: 23, orbit: 0.1, height: -0.18, fov: 34 };
-// Reflections: a cold moon strip behind, a violet fill and a crimson glow from below.
+const VOID = "#040305";
+// The crown, face and hands stay readable together, with a small low-angle view.
+export const CAMERA: CameraGoal = { distance: 20.8, orbit: .085, height: -.025, fov: 34 };
+const CAMERA_OPENING: CameraGoal = { distance: 24, orbit: -.12, height: -.055, fov: 35 };
 const SOFTBOXES: Softbox[] = [
-  { color: "#c9ccff", intensity: 2.4, position: [6, 9, -7], size: [3, 9] },
-  { color: "#8a5cff", intensity: 1.1, position: [-9, 2, 4], size: [2, 8] },
-  { color: "#ff2448", intensity: 0.9, position: [1, -8, 5], size: [8, 3] },
-  { color: "#3a2a55", intensity: 0.35, position: [0, 2, 10], size: [8, 6] },
+  { color: "#d4cddd", intensity: 3, position: [6, 9, -7], size: [2, 10] },
+  { color: "#a596b5", intensity: 2, position: [-8, 5, 6], size: [4, 8] },
+  { color: "#b64972", intensity: .4, position: [1, -5, 4], size: [6, 2] },
 ];
 
 export function createUmbraScene(options: UmbraOptions): UmbraScene {
@@ -46,24 +42,31 @@ export function createUmbraScene(options: UmbraOptions): UmbraScene {
   try {
     renderer.setClearColor(VOID, 1);
     renderer.toneMapping = ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = PCFShadowMap;
     const scene = new Scene();
-    scene.fog = new FogExp2("#0c0710", 0.016);
+    scene.fog = new FogExp2(VOID, .008);
     const environment = createStudioEnvironment(renderer, SOFTBOXES, VOID);
     releases.push(() => disposeEnvironment(environment));
-    scene.environment = environment; scene.environmentIntensity = 0.35;
-    const moon = new DirectionalLight("#d6d8ff", 0); moon.position.set(6, 9, -6);
-    const fill = new DirectionalLight("#7f5cd6", 0); fill.position.set(-7, 2, 6);
-    const ember = new PointLight("#ff2a4a", 0, 22, 2); ember.position.set(0.3, -2.4, 5.5);
-    // A faint cold key from high front-left gives the skull its planes.
-    const key = new DirectionalLight("#b8b4ff", 0); key.position.set(-5, 6, 8);
+    scene.environment = environment; scene.environmentIntensity = .55;
+    const moon = new DirectionalLight("#cdc5dd", 0); moon.position.set(5, 7, -5);
+    const fill = new DirectionalLight("#a492b9", 0); fill.position.set(-7, 2, 6);
+    const ember = new PointLight("#e53b71", 0, 16, 2); ember.position.set(.3, -1, 4.5);
+    const key = new DirectionalLight("#ded1de", 0); key.position.set(-5, 7, 8);
+    key.castShadow = true;
+    key.shadow.mapSize.setScalar(options.compact ? 512 : 1024);
+    Object.assign(key.shadow.camera, { left: -6, right: 6, top: 7, bottom: -6, near: .5, far: 35 });
+    key.shadow.bias = -.0005; key.shadow.normalBias = .025;
+    releases.push(() => key.shadow.dispose());
     scene.add(moon, fill, ember, key);
 
-    const rig = new CameraRig(reduced ? CAMERA : CAMERA_OPENING, 1.4, 15);
-    rig.setFocus(0, 0.9, 0);
+    const framingScale = options.compact ? 1.15 : 1;
+    const restFraming = { ...CAMERA, distance: CAMERA.distance * framingScale };
+    const openingFraming = { ...CAMERA_OPENING, distance: CAMERA_OPENING.distance * framingScale };
+    const rig = new CameraRig(reduced ? restFraming : openingFraming, 1.4, 18.5);
+    rig.setFocus(0, 1.1, 0);
     const group = new Group(); group.rotation.order = "YXZ"; scene.add(group);
-    const backdrop = new Backdrop(); scene.add(backdrop.group);
-    const smoke = new Smoke(options.compact ? 18 : 34, options.compact ? 60 : 140); scene.add(smoke.group);
-    releases.push(() => backdrop.dispose(), () => smoke.dispose());
+    const smoke = new Smoke(options.compact ? 14 : 28); scene.add(smoke.group);
+    releases.push(() => smoke.dispose());
 
     let creature: Creature | null = null;
     canvas.dataset.character = "loading";
@@ -71,11 +74,11 @@ export function createUmbraScene(options: UmbraOptions): UmbraScene {
       if (disposed) { loaded.dispose(); return; }
       creature = loaded; group.add(loaded.root); releases.push(() => loaded.dispose());
       canvas.dataset.character = "ready";
-    }).catch(() => { canvas.dataset.character = "failed"; options.onState("silêncio"); });
+    }).catch(() => { if (!disposed) { canvas.dataset.character = "failed"; options.onContextLost(); } });
 
     const post = createPostProcessing(renderer, scene, rig.camera, 1, 1);
     releases.push(() => post.dispose());
-    post.bloom.threshold = 1.0; post.bloom.radius = 0.5;
+    post.bloom.threshold = 1.05; post.bloom.radius = .35;
 
     let temperament = createTemperament();
     const reaction: Reaction = reactionFor("observing");
@@ -83,22 +86,31 @@ export function createUmbraScene(options: UmbraOptions): UmbraScene {
     const yaw = new Spring(0, 10), pitch = new Spring(0, 10), roll = new Spring(0, 8), bodyYaw = new Spring(0, 4);
     const cursor = { x: 0, y: 0 }, previous = { x: 0, y: 0 };
     let present = false, speed = 0, story = reduced ? INTRO_SECONDS : 0, laughAt = -10, now = 0, lastLabel = "";
-    let energyTime = 0;
-    const head = new Vector3(), lightColor = new Color();
+    let energyTime = 0, loadingTime = 0;
+    const head = new Vector3();
     const probe = import.meta.env.DEV ? { time: 0, yaw: 0, pitch: 0, eyeX: 0, eyeY: 0, blink: 0, reach: 0, startle: 0 } : null;
     if (probe) (window as unknown as { __umbraProbe?: typeof probe }).__umbraProbe = probe;
 
     function tick(_dt: number, elapsed: number, frameDt: number) {
       if (disposed) return;
       now = elapsed;
+      if (!creature) {
+        loadingTime += frameDt;
+        if (loadingTime >= 8) { loop.setVisible(false); options.onContextLost(); return; }
+      }
       if (creature) story += frameDt;
       const open = reduced ? { presence: 1, materialize: 1, eyes: 1 } : opening(story);
       const awake = story >= INTRO_SECONDS;
       const motion = reduced ? 0 : 1;
+      const framing = reduced ? 1 : smoothstep(0, 8.8, story);
+      for (const channel of ["distance", "orbit", "height", "fov"] as const) {
+        rig.goal[channel] = lerp(openingFraming[channel], restFraming[channel], framing);
+      }
       // Where is the head on screen? Nearness is measured from there.
-      head.set(0, 1.5, 0).applyMatrix4(group.matrixWorld).project(rig.camera);
+      group.updateMatrixWorld();
+      head.set(0, 2.08, 0).applyMatrix4(group.matrixWorld).project(rig.camera);
       const near = present && Math.hypot((cursor.x - head.x) * 1.2, cursor.y - head.y) < 0.55;
-      // Speed in screen units scaled like ENTITY 001, whose temperament thresholds we reuse.
+      // Normalize screen speed to the temperament thresholds.
       const units = 4;
       speed = damp(speed, frameDt > 0 && present ? Math.hypot(cursor.x - previous.x, cursor.y - previous.y) * units / frameDt : 0, 6, frameDt);
       previous.x = cursor.x; previous.y = cursor.y;
@@ -110,40 +122,40 @@ export function createUmbraScene(options: UmbraOptions): UmbraScene {
       const amusement = clamp(reaction.amusement + laugh);
 
       const weight = reaction.gaze * open.eyes;
-      const yawValue = yaw.step(gaze.x * 0.5 * weight, frameDt);
-      const pitchValue = pitch.step(-gaze.y * 0.3 * weight, frameDt);
+      const yawValue = yaw.step(gaze.x * .32 * weight, frameDt);
+      const pitchValue = pitch.step(-gaze.y * .20 * weight, frameDt);
       const rollValue = roll.step((clamp(-yaw.velocity * 0.08, -0.08, 0.08) + reaction.amusement * 0.08) * motion, frameDt);
-      group.rotation.y = bodyYaw.step(gaze.x * 0.18 * weight, frameDt) * motion;
+      group.rotation.y = -.08 + bodyYaw.step(gaze.x * .14 * weight, frameDt) * motion;
       creature?.update({
-        dt: frameDt, time: elapsed, reduced, materialize: open.materialize,
+        dt: frameDt, time: elapsed, reduced, materialize: open.materialize, eyePresence: open.eyes,
         lookYaw: yawValue, lookPitch: pitchValue, lookRoll: rollValue,
         gazeX: (gaze.eyeX - gaze.x * 0.5 * weight), gazeY: (gaze.eyeY - gaze.y * 0.4 * weight),
-        openness: open.eyes * (1 - gaze.blink * 0.95) * lerp(0.7, 1, reaction.dilation),
+        openness: reduced ? 1 : open.eyes * (1 - gaze.blink * .95) * lerp(.85, 1, reaction.dilation),
         reach: reaction.reach, reachX: cursor.x, reachY: cursor.y,
         startle: reaction.startle, amusement, dilation: reaction.dilation,
       });
 
-      moon.intensity = 2.6 * open.presence;
-      fill.intensity = 0.45 * open.presence;
-      key.intensity = 0.55 * open.materialize;
-      lightColor.set("#ff2a4a"); ember.color.copy(lightColor);
-      ember.intensity = (70 + amusement * 40 + reaction.startle * 25) * open.materialize * (0.9 + 0.1 * Math.sin(elapsed * 5.3) * motion);
-      backdrop.update(rig.camera, reduced ? 0 : elapsed, open.presence);
-      smoke.update(reduced ? 0 : elapsed, open.presence, reaction.startle, renderer.getPixelRatio());
+      moon.intensity = 2.4 * open.presence;
+      fill.intensity = .42 * open.presence;
+      key.intensity = 1.95 * open.materialize;
+      ember.intensity = (8 + amusement * 5) * open.materialize;
+      smoke.update(reduced ? 0 : elapsed, open.presence, reaction.startle * .3);
       rig.setPointer(gaze.x * 0.6, gaze.y * 0.6);
-      rig.setExpression(-reaction.reach * 0.8 + reaction.startle * 1.2, 0, 0);
+      rig.setExpression(-reaction.reach * .35 + reaction.startle * .5, 0, 0);
       rig.update(frameDt, elapsed, motion);
-      post.bloom.strength = 0.5 + amusement * 0.15;
-      post.finish.uniforms.uVignette.value = 0.55;
-      post.finish.uniforms.uGrade.value = 1;
-      post.finish.uniforms.uFloor.value = 0.25;
-      post.finish.uniforms.uAberration.value = reduced ? 0 : 0.0007;
+      post.bloom.strength = .22 + amusement * .045;
+      post.finish.uniforms.uVignette.value = .4;
+      post.finish.uniforms.uGrade.value = .55;
+      post.finish.uniforms.uFloor.value = .08;
+      post.finish.uniforms.uAberration.value = 0;
       post.render(frameDt, reduced ? 0 : elapsed);
 
       const label = !creature || !awake ? "materializando" : LABELS[temperament.mood];
       if (label !== lastLabel) { lastLabel = label; options.onState(label); }
       canvas.dataset.mood = temperament.mood;
       canvas.dataset.phase = awake ? "awake" : "intro";
+      canvas.dataset.storyTime = story.toFixed(3);
+      canvas.dataset.cameraDistance = rig.camera.position.length().toFixed(2);
       if (probe) Object.assign(probe, { time: elapsed, yaw: yawValue, pitch: pitchValue, eyeX: gaze.eyeX, eyeY: gaze.eyeY,
         blink: gaze.blink, reach: reaction.reach, startle: reaction.startle });
       if (!canvas.dataset.ready) canvas.dataset.ready = "true";
@@ -157,21 +169,20 @@ export function createUmbraScene(options: UmbraOptions): UmbraScene {
     releases.push(() => canvas.removeEventListener("webglcontextlost", onContextLost));
     const setSize = (width: number, height: number) => {
       const sizeW = Math.max(1, Math.round(width)), sizeH = Math.max(1, Math.round(height));
-      const dpr = Math.min(window.devicePixelRatio || 1, options.compact ? 1.25 : 1.6, Math.sqrt(1100000 / (sizeW * sizeH)));
+      const dpr = Math.min(window.devicePixelRatio || 1, options.compact ? 1.25 : 1.6, Math.sqrt(1500000 / (sizeW * sizeH)));
       renderer.setPixelRatio(dpr); renderer.setSize(sizeW, sizeH, false);
       rig.setAspect(sizeW / sizeH); post.setSize(sizeW, sizeH, dpr);
     };
     setSize(canvas.clientWidth || 1, canvas.clientHeight || 1);
-    Object.assign(rig.goal, CAMERA);
     if (reduced) rig.snap();
     rig.update(0, 0, 0); loop.start();
     return {
       setSize, setVisible: loop.setVisible,
-      setReduced(value) { reduced = value; if (value) { story = Math.max(story, INTRO_SECONDS); rig.snap(); } },
+      setReduced(value) { reduced = value; if (value) { story = Math.max(story, INTRO_SECONDS); Object.assign(rig.goal, restFraming); rig.snap(); } },
       pointer(x, y) { if (!present) { previous.x = x; previous.y = y; } cursor.x = x; cursor.y = y; present = true; },
       leave() { present = false; },
-      tap(x, y) { cursor.x = x; cursor.y = y; present = true; if (story >= INTRO_SECONDS) laughAt = now; },
-      dispose() { if (!disposed) { disposed = true; free(); scene.clear(); } },
+      tap(x, y) { cursor.x = x; cursor.y = y; present = true; if (story >= INTRO_SECONDS && now - laughAt > 3.5) laughAt = now; },
+      dispose() { if (!disposed) { disposed = true; free(); scene.clear(); if (probe) delete (window as unknown as { __umbraProbe?: unknown }).__umbraProbe; } },
     };
   } catch (error) { disposed = true; free(); throw error; }
 }

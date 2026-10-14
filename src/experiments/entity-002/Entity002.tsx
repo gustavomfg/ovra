@@ -3,7 +3,7 @@ import { createAmbience } from "../../core/audio";
 import { supportsWebGL2, watchReducedMotion } from "../../core/capabilities";
 import { createUmbraFallback } from "./fallback";
 import { createUmbraScene, type UmbraOptions, type UmbraScene } from "./scene";
-import "../entity-001/entity-001.css";
+import "./entity-002.css";
 
 type Mode = "webgl" | "fallback";
 
@@ -26,13 +26,13 @@ export default function Entity002() {
     const canvas = document.createElement("canvas");
     canvas.className = mode === "webgl" ? "entity-canvas" : "entity-fallback";
     canvas.setAttribute("role", "img");
-    canvas.setAttribute("aria-label", "Criatura de sombra flutuante com olhos carmesim, sorriso de presas e garras longas, diante de uma lua eclipsada.");
+    canvas.setAttribute("aria-label", "Criatura de sombra flutuante, coroada de espinhos, com olhos magenta, sorriso de presas e garras longas sobre o vazio.");
     stage.prepend(canvas);
     let scene: UmbraScene | null = null;
     const stopReduced = watchReducedMotion(value => scene?.setReduced(value));
     const options: UmbraOptions = {
       canvas, reduced: typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-      compact: typeof window.matchMedia === "function" && window.matchMedia("(max-width: 700px)").matches,
+      compact: window.innerWidth <= 700,
       onState: setLabel, onEnergy: ambience.setEnergy,
       onContextLost() { setLabel("modo essencial"); setMode("fallback"); },
     };
@@ -62,13 +62,16 @@ export default function Entity002() {
     const onMove = (event: PointerEvent) => { const p = toNdc(event); active.pointer(p.x, p.y); };
     const onDown = (event: PointerEvent) => { if (event.button === 0) { const p = toNdc(event); active.tap(p.x, p.y); ambience.pulse(); } };
     const onLeave = () => active.leave();
+    const onInvoke = () => { active.tap(0, 0); ambience.pulse(); };
     stage.addEventListener("pointermove", onMove, { passive: true });
     stage.addEventListener("pointerdown", onDown, { passive: true });
     stage.addEventListener("pointerleave", onLeave, { passive: true });
+    stage.addEventListener("umbra-invoke", onInvoke);
     return () => {
       stage.removeEventListener("pointermove", onMove);
       stage.removeEventListener("pointerdown", onDown);
       stage.removeEventListener("pointerleave", onLeave);
+      stage.removeEventListener("umbra-invoke", onInvoke);
       resizer.disconnect(); visibility.disconnect(); stopReduced();
       active.dispose(); canvas.remove();
     };
@@ -89,6 +92,7 @@ export default function Entity002() {
         <p className="entity-readout" aria-live="polite"><span className="entity-state-dot" aria-hidden="true" />{label}</p>
       </div>
       <div className="entity-controls">
+        <button type="button" disabled={label === "materializando"} onClick={() => stageRef.current?.dispatchEvent(new Event("umbra-invoke"))} aria-label="Provocar a entidade">provocar</button>
         <button type="button" aria-pressed={sound} aria-label={sound ? "Desativar som" : "Ativar som"}
           disabled={soundPending} onClick={() => void toggleSound()}>som <span aria-hidden="true">{sound ? "on" : "off"}</span></button>
       </div>

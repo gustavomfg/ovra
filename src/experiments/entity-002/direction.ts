@@ -1,18 +1,17 @@
-import { clamp, smoothstep } from "../../core/math";
-import type { Mood } from "../entity-001/behavior";
+import { smoothstep } from "../../core/math";
+import type { Mood } from "./behavior";
 
 // Pure timing and reaction rules for UMBRA, kept free of three.js for tests.
 
-export const INTRO_SECONDS = 6.2;
+export const INTRO_SECONDS = 9.2;
 
 export type Opening = { presence: number; materialize: number; eyes: number };
-// The city and mist come first, then the body gathers out of smoke, and last
-// the eyes ignite.
+// A glance in the void, then the rim reveals the crown and the heavier matter.
 export function opening(time: number): Opening {
   return {
-    presence: smoothstep(0, 2.4, time),
-    materialize: smoothstep(1.0, 4.8, time),
-    eyes: smoothstep(4.6, 5.8, time),
+    presence: smoothstep(.8, 5.2, time),
+    materialize: smoothstep(2.6, 8.4, time),
+    eyes: smoothstep(1.2, 3.2, time),
   };
 }
 
@@ -35,8 +34,8 @@ const REACTIONS: Record<Mood, Reaction> = {
 };
 export function reactionFor(mood: Mood): Reaction { return { ...REACTIONS[mood] }; }
 
-// A tap makes it laugh: a quick rise and a long fade.
+// A tap or the keyboard control provokes a slow, deliberate response.
 export function laughEnvelope(since: number) {
   if (since < 0) return 0;
-  return clamp(since / 0.12) * Math.exp(-Math.max(0, since - 0.12) * 1.6);
+  return smoothstep(0, .65, since) * Math.exp(-Math.max(0, since - .85) * .9);
 }

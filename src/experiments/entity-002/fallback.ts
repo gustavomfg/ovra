@@ -1,5 +1,6 @@
 import { createFrameLoop } from "../../core/frameLoop";
 import { Spring } from "../../core/spring";
+import { laughEnvelope } from "./direction";
 import type { UmbraOptions, UmbraScene } from "./scene";
 
 // Without WebGL2 the creature is reduced to what matters most: two slanted
@@ -11,7 +12,9 @@ export function createUmbraFallback(options: UmbraOptions): UmbraScene {
   options.onState("modo essencial");
   if (!context) return { setSize: noop, setVisible: noop, setReduced: noop, pointer: noop, leave: noop, tap: noop, dispose: noop };
   const ctx: CanvasRenderingContext2D = context;
-  let width = 1, height = 1, reduced = options.reduced, present = false, laugh = 0;
+  let width = 1, height = 1, reduced = options.reduced, present = false, laughAt = -10, now = 0;
+  const poster = new Image();
+  poster.src = `${import.meta.env.BASE_URL}3d/entity-002/umbra-poster.webp`;
   const cursor = { x: 0, y: 0 };
   const x = new Spring(0, 30), y = new Spring(0, 30);
 
@@ -27,10 +30,19 @@ export function createUmbraFallback(options: UmbraOptions): UmbraScene {
   }
 
   function tick(dt: number, elapsed: number) {
-    const gx = x.step(present ? cursor.x : 0, dt), gy = y.step(present ? cursor.y : 0, dt);
-    laugh = Math.max(0, laugh - dt * 0.8);
+    now = elapsed;
+    const gx = x.step(present && !reduced ? cursor.x : 0, dt), gy = y.step(present && !reduced ? cursor.y : 0, dt);
+    const laugh = laughEnvelope(elapsed - laughAt);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "#07050a"; ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = "#040305"; ctx.fillRect(0, 0, width, height);
+    if (poster.complete && poster.naturalWidth > 0) {
+      const size = Math.min(width * .9, height * .84);
+      ctx.filter = `brightness(${1 + laugh * .10})`;
+      ctx.drawImage(poster, (width-size)/2 + gx*size*.008, (height-size)/2 - gy*size*.005, size, size);
+      ctx.filter = "none";
+      canvas.dataset.ready = "true";
+      return;
+    }
     const s = Math.min(width, height) * 0.09;
     const cx = width / 2 + gx * s * 0.6, cy = height * 0.42 - gy * s * 0.4 + (reduced ? 0 : Math.sin(elapsed * 0.85) * s * 0.08);
     eye(cx - s * 1.1, cy, 1, s, gx, -gy);
@@ -38,7 +50,7 @@ export function createUmbraFallback(options: UmbraOptions): UmbraScene {
     ctx.strokeStyle = `rgba(230,220,210,${0.55 + laugh * 0.4})`; ctx.lineWidth = Math.max(1, s * 0.06);
     ctx.beginPath();
     for (let i = 0; i <= 18; i++) {
-      const u = i / 18 * 2 - 1, px = cx + u * s * 2.4, py = cy + s * 1.3 - s * 0.9 * (1 - u * u);
+      const u = i / 18 * 2 - 1, px = cx + u * s * 2.4, py = cy + s * .9 + s * .7 * (1 - u * u);
       const tooth = i % 2 ? s * 0.22 : 0;
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py + tooth);
     }
@@ -52,7 +64,7 @@ export function createUmbraFallback(options: UmbraOptions): UmbraScene {
     setReduced(value) { reduced = value; },
     pointer(px, py) { cursor.x = px; cursor.y = py; present = true; },
     leave() { present = false; },
-    tap() { laugh = 1; },
-    dispose() { loop.dispose(); },
+    tap() { if (now - laughAt > 3.5) laughAt = now; },
+    dispose() { loop.dispose(); poster.removeAttribute("src"); },
   };
 }

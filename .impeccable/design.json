@@ -1,0 +1,331 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T20:28:10Z",
+  "title": "Design System: OVRA — UMBRA",
+  "extensions": {
+    "colorMeta": {
+      "void": {
+        "role": "neutral",
+        "displayName": "Vazio violeta",
+        "tonalRamp": [
+          "oklch(15% 0.00869 309.09)",
+          "oklch(25% 0.00869 309.09)",
+          "oklch(35% 0.00869 309.09)",
+          "oklch(45% 0.00869 309.09)",
+          "oklch(55% 0.00869 309.09)",
+          "oklch(65% 0.00869 309.09)",
+          "oklch(80% 0.00869 309.09)",
+          "oklch(95% 0.00869 309.09)"
+        ]
+      },
+      "shell-void": {
+        "role": "neutral",
+        "displayName": "Vazio da interface",
+        "tonalRamp": [
+          "oklch(15% 0.00439 285.56)",
+          "oklch(25% 0.00439 285.56)",
+          "oklch(35% 0.00439 285.56)",
+          "oklch(45% 0.00439 285.56)",
+          "oklch(55% 0.00439 285.56)",
+          "oklch(65% 0.00439 285.56)",
+          "oklch(80% 0.00439 285.56)",
+          "oklch(95% 0.00439 285.56)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta clara",
+        "tonalRamp": [
+          "oklch(15% 0.01033 81.79)",
+          "oklch(25% 0.01033 81.79)",
+          "oklch(35% 0.01033 81.79)",
+          "oklch(45% 0.01033 81.79)",
+          "oklch(55% 0.01033 81.79)",
+          "oklch(65% 0.01033 81.79)",
+          "oklch(80% 0.01033 81.79)",
+          "oklch(95% 0.01033 81.79)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Cinza silencioso",
+        "tonalRamp": [
+          "oklch(15% 0.00819 80.71)",
+          "oklch(25% 0.00819 80.71)",
+          "oklch(35% 0.00819 80.71)",
+          "oklch(45% 0.00819 80.71)",
+          "oklch(55% 0.00819 80.71)",
+          "oklch(65% 0.00819 80.71)",
+          "oklch(80% 0.00819 80.71)",
+          "oklch(95% 0.00819 80.71)"
+        ]
+      },
+      "ember": {
+        "role": "primary",
+        "displayName": "Brasa magenta",
+        "tonalRamp": [
+          "oklch(15% 0.15642 1.04)",
+          "oklch(25% 0.15642 1.04)",
+          "oklch(35% 0.15642 1.04)",
+          "oklch(45% 0.15642 1.04)",
+          "oklch(55% 0.15642 1.04)",
+          "oklch(65% 0.15642 1.04)",
+          "oklch(80% 0.15642 1.04)",
+          "oklch(95% 0.15642 1.04)"
+        ]
+      },
+      "magenta-bounce": {
+        "role": "primary",
+        "displayName": "Reflexo magenta",
+        "tonalRamp": [
+          "oklch(15% 0.14674 359.50)",
+          "oklch(25% 0.14674 359.50)",
+          "oklch(35% 0.14674 359.50)",
+          "oklch(45% 0.14674 359.50)",
+          "oklch(55% 0.14674 359.50)",
+          "oklch(65% 0.14674 359.50)",
+          "oklch(80% 0.14674 359.50)",
+          "oklch(95% 0.14674 359.50)"
+        ]
+      },
+      "pale-light": {
+        "role": "secondary",
+        "displayName": "Luz violeta pálida",
+        "tonalRamp": [
+          "oklch(15% 0.02310 305.56)",
+          "oklch(25% 0.02310 305.56)",
+          "oklch(35% 0.02310 305.56)",
+          "oklch(45% 0.02310 305.56)",
+          "oklch(55% 0.02310 305.56)",
+          "oklch(65% 0.02310 305.56)",
+          "oklch(80% 0.02310 305.56)",
+          "oklch(95% 0.02310 305.56)"
+        ]
+      },
+      "violet-light": {
+        "role": "secondary",
+        "displayName": "Luz violeta suave",
+        "tonalRamp": [
+          "oklch(15% 0.04766 307.01)",
+          "oklch(25% 0.04766 307.01)",
+          "oklch(35% 0.04766 307.01)",
+          "oklch(45% 0.04766 307.01)",
+          "oklch(55% 0.04766 307.01)",
+          "oklch(65% 0.04766 307.01)",
+          "oklch(80% 0.04766 307.01)",
+          "oklch(95% 0.04766 307.01)"
+        ]
+      },
+      "shadow": {
+        "role": "neutral",
+        "displayName": "Sombra grafite",
+        "tonalRamp": [
+          "oklch(15% 0.02181 309.49)",
+          "oklch(25% 0.02181 309.49)",
+          "oklch(35% 0.02181 309.49)",
+          "oklch(45% 0.02181 309.49)",
+          "oklch(55% 0.02181 309.49)",
+          "oklch(65% 0.02181 309.49)",
+          "oklch(80% 0.02181 309.49)",
+          "oklch(95% 0.02181 309.49)"
+        ]
+      },
+      "tatter": {
+        "role": "neutral",
+        "displayName": "Tecido escuro",
+        "tonalRamp": [
+          "oklch(15% 0.02706 310.51)",
+          "oklch(25% 0.02706 310.51)",
+          "oklch(35% 0.02706 310.51)",
+          "oklch(45% 0.02706 310.51)",
+          "oklch(55% 0.02706 310.51)",
+          "oklch(65% 0.02706 310.51)",
+          "oklch(80% 0.02706 310.51)",
+          "oklch(95% 0.02706 310.51)"
+        ]
+      },
+      "obsidian": {
+        "role": "neutral",
+        "displayName": "Obsidiana",
+        "tonalRamp": [
+          "oklch(15% 0.02508 305.76)",
+          "oklch(25% 0.02508 305.76)",
+          "oklch(35% 0.02508 305.76)",
+          "oklch(45% 0.02508 305.76)",
+          "oklch(55% 0.02508 305.76)",
+          "oklch(65% 0.02508 305.76)",
+          "oklch(80% 0.02508 305.76)",
+          "oklch(95% 0.02508 305.76)"
+        ]
+      },
+      "bone": {
+        "role": "neutral",
+        "displayName": "Osso rosado",
+        "tonalRamp": [
+          "oklch(15% 0.02601 348.71)",
+          "oklch(25% 0.02601 348.71)",
+          "oklch(35% 0.02601 348.71)",
+          "oklch(45% 0.02601 348.71)",
+          "oklch(55% 0.02601 348.71)",
+          "oklch(65% 0.02601 348.71)",
+          "oklch(80% 0.02601 348.71)",
+          "oklch(95% 0.02601 348.71)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "wordmark": {
+        "displayName": "Marca",
+        "purpose": "Assinatura OVRA em Inter Tight, com letras maiúsculas e espaçamento amplo."
+      },
+      "index": {
+        "displayName": "Índice",
+        "purpose": "Código do experimento no canto superior direito."
+      },
+      "label": {
+        "displayName": "Título e estado",
+        "purpose": "Identidade curta e leitura discreta da obra; título compacto usa 9 px."
+      },
+      "control": {
+        "displayName": "Controle",
+        "purpose": "Ações em caixa baixa, subordinadas à obra."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "canvas-reveal",
+        "value": "opacity 700ms ease",
+        "purpose": "Entrada do canvas pronto; removida com movimento reduzido."
+      },
+      {
+        "name": "control-color",
+        "value": "color 180ms ease",
+        "purpose": "Clareamento dos controles; removido com movimento reduzido."
+      },
+      {
+        "name": "eyes-first-opening",
+        "value": "9.2s; eyes smoothstep(1.2, 3.2); body smoothstep(2.6, 8.4)",
+        "purpose": "Olhos precedem a matéria; a coroa emerge pela luz de contorno."
+      },
+      {
+        "name": "provocation",
+        "value": "smoothstep(0, 0.65, t) * exp(-max(0, t - 0.85) * 0.9)",
+        "purpose": "Preparação de 0,65 s seguida de retorno lento da resposta silenciosa."
+      },
+      {
+        "name": "critical-damping",
+        "value": "damping = 2 * sqrt(stiffness)",
+        "purpose": "Mudanças de alvo preservam a velocidade em atenção, postura e câmera."
+      },
+      {
+        "name": "saccade-profile",
+        "value": "t³ * (10 + t * (-15 + t * 6))",
+        "purpose": "O olho fixa primeiro; a cabeça acompanha com inércia e microssacadas discretas."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "spatial motion = 0; opening settled",
+        "purpose": "Câmera e pose espacial imóveis, com estado e cor ainda disponíveis."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Marca OVRA",
+      "kind": "custom",
+      "refersTo": "wordmark",
+      "description": "Assinatura pequena e espaçada no canto superior esquerdo.",
+      "html": "<div class=\"ds-umbra-surface\"><span class=\"ds-wordmark\">OVRA</span></div>",
+      "css": ".ds-umbra-surface { background: var(--ovra-void, #030304); padding: 32px; color: var(--ovra-ink, #ece8e1); } .ds-wordmark { font-family: var(--ovra-sans, \"Inter Tight\", \"Helvetica Neue\", Arial, sans-serif); font-size: 13px; font-weight: 500; letter-spacing: 0.42em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Índice do experimento",
+      "kind": "nav",
+      "refersTo": "experiment-link",
+      "description": "Código atual alinhado à direita, com alvo de pelo menos 44 × 44 px.",
+      "html": "<div class=\"ds-umbra-surface\"><nav class=\"ds-index\" aria-label=\"Experimentos\"><a href=\"#entity-002\" aria-current=\"page\" aria-label=\"ENTITY 002 — UMBRA, experimento 002\">002</a></nav></div>",
+      "css": ".ds-umbra-surface { background: var(--ovra-void, #030304); padding: 32px; color: var(--ovra-ink, #ece8e1); } .ds-index { display: flex; justify-content: flex-end; gap: 18px; font-family: var(--ovra-mono, \"IBM Plex Mono\", ui-monospace, monospace); font-size: 11px; font-weight: 400; letter-spacing: 0.12em; } .ds-index a { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: flex-end; text-decoration: none; color: var(--ovra-muted, #8d8a85); } .ds-index a[aria-current=\"page\"], .ds-index a:hover { color: var(--ovra-ink, #ece8e1); } .ds-index a:focus-visible { outline: 1px solid var(--ovra-ink, #ece8e1); outline-offset: 6px; } @media (max-width: 700px) { .ds-index { gap: 12px; } }"
+    },
+    {
+      "name": "Identidade da obra",
+      "kind": "custom",
+      "refersTo": "entity-caption",
+      "description": "Título compacto; nome UMBRA em cinza silencioso.",
+      "html": "<div class=\"ds-umbra-surface\"><h1 class=\"ds-entity-name\">ENTITY 002 <span>— UMBRA</span></h1></div>",
+      "css": ".ds-umbra-surface { background: var(--ovra-void, #030304); padding: 32px; color: var(--ovra-ink, #ece8e1); } .ds-entity-name { margin: 0; font-family: var(--ovra-mono, \"IBM Plex Mono\", ui-monospace, monospace); font-size: 10px; font-weight: 400; letter-spacing: 0.12em; color: var(--ovra-ink, #ece8e1); } .ds-entity-name span { color: var(--ovra-muted, #8d8a85); } @media (max-width: 700px) { .ds-entity-name { font-size: 9px; } }"
+    },
+    {
+      "name": "Leitura de estado",
+      "kind": "custom",
+      "refersTo": "state-readout",
+      "description": "Ponto magenta e anúncio discreto do temperamento.",
+      "html": "<div class=\"ds-umbra-surface\"><p class=\"ds-state-readout\" aria-live=\"polite\"><span class=\"ds-state-dot\" aria-hidden=\"true\"></span>à espreita</p></div>",
+      "css": ".ds-umbra-surface { background: var(--ovra-void, #030304); padding: 32px; color: var(--ovra-ink, #ece8e1); } .ds-state-readout { display: flex; align-items: center; gap: 9px; margin: 12px 0 0; font-family: var(--ovra-mono, \"IBM Plex Mono\", ui-monospace, monospace); font-size: 10px; font-weight: 400; letter-spacing: 0.12em; color: var(--ovra-muted, #8d8a85); } .ds-state-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ovra-ember, #dc638c); } @media (max-width: 700px) { .ds-state-readout { margin-top: 9px; } }"
+    },
+    {
+      "name": "Provocar",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Acesso pelo teclado à resposta silenciosa da criatura.",
+      "html": "<div class=\"ds-umbra-surface\"><button class=\"ds-quiet-button\" type=\"button\" aria-label=\"Provocar a entidade\">provocar</button></div>",
+      "css": ".ds-umbra-surface { background: var(--ovra-void, #030304); padding: 32px; color: var(--ovra-ink, #ece8e1); } .ds-quiet-button { min-height: 44px; padding: 0 2px; border: 0; border-radius: 0; background: transparent; font-family: var(--ovra-mono, \"IBM Plex Mono\", ui-monospace, monospace); font-size: 10px; letter-spacing: 0.08em; font-weight: 400; color: var(--ovra-muted, #8d8a85); cursor: pointer; transition: color 180ms ease; } .ds-quiet-button:hover:not(:disabled), .ds-quiet-button[aria-pressed=\"true\"] { color: var(--ovra-ink, #ece8e1); } .ds-quiet-button:focus-visible { outline: 1px solid var(--ovra-ink, #ece8e1); outline-offset: 6px; } .ds-quiet-button:disabled { opacity: 0.4; cursor: default; } .ds-quiet-button span { color: var(--ovra-muted, #8d8a85); margin-left: 5px; } @media (prefers-reduced-motion: reduce) { .ds-quiet-button { transition: none; } }"
+    },
+    {
+      "name": "Som opcional",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Áudio desligado por padrão; estado pressionado clareia o texto principal.",
+      "html": "<div class=\"ds-umbra-surface\"><button class=\"ds-quiet-button\" type=\"button\" aria-pressed=\"false\" aria-label=\"Ativar som\">som <span aria-hidden=\"true\">off</span></button></div>",
+      "css": ".ds-umbra-surface { background: var(--ovra-void, #030304); padding: 32px; color: var(--ovra-ink, #ece8e1); } .ds-quiet-button { min-height: 44px; padding: 0 2px; border: 0; border-radius: 0; background: transparent; font-family: var(--ovra-mono, \"IBM Plex Mono\", ui-monospace, monospace); font-size: 10px; letter-spacing: 0.08em; font-weight: 400; color: var(--ovra-muted, #8d8a85); cursor: pointer; transition: color 180ms ease; } .ds-quiet-button:hover:not(:disabled), .ds-quiet-button[aria-pressed=\"true\"] { color: var(--ovra-ink, #ece8e1); } .ds-quiet-button:focus-visible { outline: 1px solid var(--ovra-ink, #ece8e1); outline-offset: 6px; } .ds-quiet-button:disabled { opacity: 0.4; cursor: default; } .ds-quiet-button span { color: var(--ovra-muted, #8d8a85); margin-left: 5px; } @media (prefers-reduced-motion: reduce) { .ds-quiet-button { transition: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Presença no vazio",
+    "overview": "OVRA oferece uma obra interativa em tela inteira. UMBRA é uma criatura de sombra: sobrancelha em V ligada à coroa angular, olhos magenta inclinados, sorriso de presas, garras articuladas e matéria que termina em tecido rasgado. A referência fornecida pelo autor orienta a identidade; o resultado é uma interpretação 3D estilizada.\n\nA escuridão deixa o olhar e a silhueta conduzirem a atenção. Marca, índice, título, estado e controles ficam nas bordas, com texto curto em português. O ambiente da criatura é um fundo escuro isolado, sem lua, ruínas ou cidade.",
+    "keyCharacteristics": [
+      "Silhueta completa e espaço escuro ao redor.",
+      "Matéria grafite violeta, luz localizada e pupilas legíveis.",
+      "Atenção e postura conduzem o movimento.",
+      "Tipografia pequena, controles discretos e foco visível.",
+      "Movimento reduzido, áudio opcional e alternativa 2D preservam o acesso à obra."
+    ],
+    "rules": [
+      {
+        "name": "The Olhar Rule",
+        "body": "A luz emissiva mantém a pupila escura e a forma inclinada do olho legíveis; o brilho não deve apagar a anatomia.",
+        "section": "colors"
+      },
+      {
+        "name": "The Voz Baixa Rule",
+        "body": "O texto descreve identidade, estado ou ação disponível; sua escala permanece subordinada à criatura.",
+        "section": "typography"
+      },
+      {
+        "name": "The Silhueta Rule",
+        "body": "O enquadramento preserva a leitura conjunta da coroa, do rosto, das garras e da cauda de tecido, com espaço para a resposta da criatura.",
+        "section": "layout"
+      }
+    ],
+    "dos": [
+      "Do preservar a silhueta inteira e o espaço escuro ao redor em telas largas e estreitas.",
+      "Do reservar o brilho magenta ao olhar, à gema e ao pequeno sinal de estado.",
+      "Do manter a pupila legível e distinguir a matéria fosca dos reflexos de obsidiana.",
+      "Do dar ao gesto uma preparação, uma resposta contida e um retorno suave.",
+      "Do manter foco visível, áreas de toque adequadas, áudio opcional e movimento reduzido."
+    ],
+    "donts": [
+      "Don't acrescentar lua, ruínas ou cidade ao ambiente isolado de UMBRA.",
+      "Don't transformar os controles em painéis, cartões ou blocos de texto.",
+      "Don't usar partículas dispersas ou uma explosão de fragmentos como resposta da criatura.",
+      "Don't deixar bloom ou névoa esconderem as pupilas, as presas ou o contorno das garras.",
+      "Don't disparar áudio automaticamente."
+    ]
+  }
+}

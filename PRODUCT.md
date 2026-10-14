@@ -20,7 +20,7 @@ Visitantes curiosos, artistas digitais e pessoas que gostam de descobrir coisas 
 
 ## Experimentos
 
-- **ENTITY 001** — uma consciência visual formada por estilhaços. Ela surge da escuridão, percebe o visitante, pode se aproximar, recuar ou ignorar, e se transforma com um duplo toque. Detalhes em [`docs/entity-001.md`](docs/entity-001.md).
+- **ENTITY 002 — UMBRA** — o único experimento ativo. Uma criatura de sombra coroada de espinhos flutua no vazio, observa o visitante com olhos magenta e responde com garras, postura e atenção. Modelo Blender e animação em tempo real. A referência visual é a imagem fornecida pelo autor; o cenário é isolado sobre fundo escuro, sem arquitetura ou lua. Detalhes em [`docs/entity-002.md`](docs/entity-002.md).
 
 ## Anti-referências
 

@@ -1,84 +1,65 @@
 # ENTITY 002 — UMBRA
 
-<p align="center"><img src="entity-002/umbra-hero.jpg" alt="UMBRA: espectro encapuzado de sombra com olhos carmesim e sorriso de presas, asas em farrapos ardendo em vermelho, diante de uma lua eclipsada e de uma cidade gótica" width="960" /></p>
+O único experimento ativo do OVRA. Uma criatura de sombra flutua sobre um fundo escuro, observa o visitante e responde com postura, olhar e garras. A referência é a imagem fornecida nesta tarefa; a escolha de cenário foi **personagem isolado**, sem lua ou arquitetura.
 
-Uma criatura de sombra que flutua sobre uma cidade gótica, sob uma lua eclipsada. Ela observa o visitante com olhos em brasa, sorri com presas demais e reage ao modo como é abordada: a calma desperta curiosidade e uma garra se estende; a pressa a faz recuar e abrir os farrapos; o toque a faz rir em silêncio.
+![UMBRA no navegador](../images/ovra-entity-002.png)
 
-## Origem e originalidade
+## Construção do personagem
 
-O ponto de partida foi uma ilustração de referência com atmosfera de demônio de sombra: corpo que se desfaz em fumaça e farrapos, olhos carmesim, sorriso predatório, garras, gema no peito, lua eclipsada e ruínas góticas. Essa ilustração é uma releitura evidente de um personagem protegido (Gengar, de Pokémon). Por isso a UMBRA **não reproduz** a sua silhueta: não tem corpo esférico com duas orelhas pontudas nem braços curtos. A identidade dela é própria:
+O modelo existente foi refinado pelo pipeline Blender do projeto. A máscara larga tem cavidades para os olhos e a boca, um arco angular sobre as órbitas e placas que continuam da testa até a coroa. Cristas desiguais e lâminas nas têmporas definem a silhueta. Dentes intercalados, escamas nas bochechas, um pequeno cristal no peito, braços revestidos e dez garras articuladas completam a figura. A matéria inferior forma um volume contínuo, com camadas rasgadas, uma cauda curva e recortes modelados na capa.
 
-- **Capuz espectral em farrapos** que emoldura o rosto e cai sobre os ombros (arquétipo de ceifador);
-- **Chifres de foice** que saem das têmporas e varrem para trás, e uma **crista** de lâminas na linha média;
-- crânio alongado em forma de capuz, **sobrancelha em V**, olhos amendoados inclinados com **pupila em fenda**;
-- **pescoço e tronco** separados, **peito de escamas-lâmina** com uma gema, **braços longos** com cinco garras e esporões no antebraço;
-- metade inferior que nunca termina: **farrapos em forma de chama** e duas **asas-capa rasgadas**.
+É uma interpretação 3D estilizada da ilustração. A profundidade, o verso e partes ocultas são decisões autorais; a imagem única não define uma geometria completa. O resultado utiliza geometria verdadeira e pode ser observado de outros ângulos.
 
-Nenhuma imagem, textura ou forma da referência entra no projeto. O modelo é gerado por código e o cenário é procedural em shader.
+- Fonte editável: `assets/source/entity-002/umbra.blend`.
+- Referência fornecida: `assets/source/entity-002/reference.png` (fora dos arquivos públicos).
+- Assets web: `public/3d/entity-002/umbra-cinematic.glb` e `umbra-optimized.glb`.
+- Texturas: mapas determinísticos de normal e rugosidade de 512 × 512, incorporados aos GLB e conservados na pasta de fonte. A rugosidade e o relevo variam; vértices de tecido guardam pesos de movimento, não cor de superfície.
 
-<p align="center"><img src="entity-002/umbra-turnaround.jpg" alt="Previews do Blender: frente, três quartos, perfil e close do rosto" width="960" /></p>
+A máscara e os espinhos usam grafite violeta, reflexos contidos e planos facetados. As superfícies absorvem a maior parte da luz; uma key lateral e um rim frio separam suas camadas. Olhos e cristal concentram o magenta. Não há emissão generalizada sobre a capa nem branco estourado nos olhos.
 
-## Pipeline
+## Movimento e interação
 
-| Arquivo | Papel |
+A abertura dura **9,2 segundos**. Os olhos aparecem primeiro; o contorno revela a coroa, e depois a luz alcança a matéria. A câmera faz uma aproximação contínua e pequena.
+
+O olho conduz a atenção com sacadas, perseguição suave e microssacadas; a cabeça segue com atraso e molas com amortecimento crítico. Piscadas têm intervalos irregulares. O corpo flutua lentamente, os dedos flexionam, a capa tem movimento leve preso às raízes e algumas mechas de névoa acompanham a figura.
+
+| Gesto / situação | Resposta |
 | --- | --- |
-| `tools/blender/entity-002/build_umbra.py` | Modela a criatura por código (bmesh), cria a hierarquia de controles e exporta os GLB |
-| `tools/blender/entity-002/preview_umbra.py` | Renders Eevee de conferência (frente, 3/4, perfil, rosto) |
-| `assets/source/entity-002/umbra.blend` | Fonte gerada (cinematic) |
-| `public/3d/entity-002/umbra-{cinematic,optimized}.glb` | 775 KB / 382 KB, 22 primitivas, cerca de 40 mil / 19 mil triângulos |
+| Cursor lento perto do rosto | Atenção e curiosidade; a mão do lado do visitante se aproxima |
+| Passagens rápidas repetidas | Recuo, tensão e afastamento temporário do olhar |
+| Ausência do visitante | Quietude e atenção ociosa |
+| Clique ou botão `provocar` | Resposta com antecipação de 0,65 s, pequena inclinação e retorno gradual |
+| Botão `som` | Ambiência opcional em Web Audio; desligada por padrão |
+
+Não há enxame, explosão de fragmentos ou reorganização caótica. Cada controle tem uma única autoridade; as poses são calculadas a partir do repouso, sem acumular rotação entre quadros.
+
+## Câmera e acabamento
+
+Repouso: distância 20,8, fov de 34°, órbita de 0,085 rad e distância mínima de 18,5. Em telas estreitas há recuo adicional de 15%, além da correção de proporção do rig, para preservar a silhueta.
+
+ACES, bloom de intensidade baixa, antialiasing e grão discreto. Sem aberração cromática. Uma sombra direcional ajuda a ler a sobreposição entre placas. A névoa é estilizada e instanciada; não é uma simulação física de fumaça.
+
+## Execução e acessibilidade
+
+- O caminho `/ovra/` e o roteamento por hash permanecem compatíveis com GitHub Pages. URLs antigas abrem UMBRA.
+- Renderização e relógio da cena param com a aba oculta ou fora da viewport.
+- `prefers-reduced-motion` elimina intro, movimento espacial, perseguição do cursor, tecido e câmera móvel. Mantém a pose e os controles.
+- Falha de asset ou perda de WebGL2 abre o modo essencial: uma imagem renderizada do próprio modelo, com deslocamento mínimo quando permitido. Se ela não carregar, olhos e sorriso são desenhados em canvas 2D.
+- O botão `provocar` oferece acesso por teclado à reação do clique. Áudio requer ação explícita.
+- Cada montagem possui suas geometrias e materiais; as texturas compartilhadas do cache continuam válidas. Descarte é idempotente.
+
+## Reproduzir os assets
 
 ```bash
-blender -b --factory-startup --python tools/blender/entity-002/build_umbra.py -- all
-blender -b --factory-startup --python tools/blender/entity-002/preview_umbra.py -- /tmp/umbra-previews
+blender -b --factory-startup --python tools/blender/entity-002/build_umbra.py -- cinematic optimized
+python3 tools/blender/entity-002/validate_asset.py
 ```
 
-**Hierarquia**: `UMBRA_ROOT → CTRL_BODY → CTRL_TORSO → CTRL_NECK → CTRL_LOOK → CTRL_HEAD` (crânio, dentes, boca, chifres, capuz, `CTRL_EYE_L/R`), mais `CTRL_SHOULDER → CTRL_ELBOW → CTRL_WRIST` em cada braço e `CTRL_GEM`. Tudo é animado por código; o GLB não traz clipes.
+`surface_textures.py` gera os mapas sem dependências externas ao Blender. O validador verifica controles, orçamento de triângulos/bytes, UVs, pesos de tecido e texturas incorporadas. Os GLB exportam o rig de controles; a animação da experiência é feita em tempo real por `creature.ts`, sem clipes concorrentes.
 
-**Cores de vértice** (`COLOR_0`) nos farrapos, no capuz, nas mangas e nas asas: **R** guarda o peso de vento (raiz fixa, ponta livre) e **G** o brilho da borda rasgada. A web lê esse atributo em vez de usá-lo como cor.
+As medições do validador são de asset. Não constituem uma promessa de FPS: o desempenho depende da GPU, resolução e navegador.
 
-## Web (`src/experiments/entity-002/`)
+## Referências técnicas consultadas
 
-| Módulo | Papel |
-| --- | --- |
-| `materials.ts` | Injeção nos materiais glTF: materialização por ruído, recorte violeta, vento e brasa nos farrapos (as pontas se desfazem em fumaça), olho com pupila em fenda |
-| `creature.ts` | Carregamento, posse de recursos e animação procedural: flutuação, olhar, piscada, braços, sobressalto e riso |
-| `backdrop.ts` | Céu, eclipse com coroa, duas camadas de cidade gótica com janelas acesas e névoa (parallax) |
-| `smoke.ts` | Fiapos de fumaça instanciados e brasas subindo |
-| `direction.ts` | Regras puras: abertura, reação por humor, curva do riso |
-| `scene.ts` | Luz (lua fria por trás, brasa carmesim por baixo, preenchimento violeta, key frio sutil), câmera baixa heroica, pós e ciclo |
-| `fallback.ts` | Sem WebGL2: dois olhos em brasa e um sorriso em canvas 2D que seguem o visitante |
-
-**Reaproveitado do ENTITY 001**: o temperamento (`behavior.ts`) e o olhar com sacadas, perseguição, microssacadas e piscadas (`perception.ts`), além de câmera, ambiente, pós e loop do `core/`.
-
-### Comportamento
-
-| Humor | Leitura no corpo |
-| --- | --- |
-| observando | Acompanha com os olhos; a cabeça segue a fixação; sorriso discreto |
-| intrigada (permanecer calmo perto) | A garra do lado do cursor avança em direção ao visitante; pupilas dilatam; a câmera se aproxima |
-| recuando / eriçada / furiosa (movimentos bruscos) | Recua, braços se abrem, farrapos se eriçam, fumaça se espalha, pupilas viram fios |
-| desdenhosa | Desvia o olhar com um meio sorriso |
-| à espreita (sem visitante) | Deriva lenta, olhar distante |
-| toque | Riso silencioso: a boca acende, a cabeça treme, ombros e garras vibram |
-
-**Abertura (6,2 s)**: primeiro a cidade e a névoa, depois a matéria se acende em fragmentos incandescentes a partir do ruído e, por último, os olhos.
-
-<p align="center"><img src="entity-002/umbra-materialize.jpg" alt="Materialização: a criatura se forma em fragmentos incandescentes" width="320" /> <img src="entity-002/umbra-curious-startle.jpg" alt="Curiosa, com as garras à frente, e em sobressalto, com os braços abertos" width="620" /></p>
-
-**Movimento reduzido**: sem abertura, deriva, vento, olhar ou câmera móvel; a criatura aparece pronta e iluminada.
-
-## Medições
-
-| | RTX 4060 | iGPU AMD Renoir | 390×844 |
-| --- | --- | --- | --- |
-| fps (vsync) | 60 | 60 | 60 |
-| Draws por frame | 43 | 43 | 43 |
-| Erros de console | 0 | 0 | 0 |
-
-## Pendências
-
-- **Reação mais legível de frente**: o alcance da garra vem em direção à câmera, então aparece em escorço; um leve giro do corpo para o lado do cursor tornaria o gesto mais claro.
-- **Composição no celular**: a lua fica fora do quadro; ela poderia acompanhar a proporção da tela.
-- **Detalhe de superfície**: a pele ainda é lisa. Uma textura de ruído (veias, rachaduras incandescentes) daria escala.
-- **Acoplamento**: `behavior.ts` e `perception.ts` vivem no 001 e são importados pelo 002. Eles deveriam migrar para `core/` com perfis por criatura.
-- **Som próprio**: hoje a UMBRA usa a ambiência genérica; um sussurro grave acompanharia melhor o riso e o sobressalto.
+- [Materiais físicos do Three.js](https://threejs.org/docs/pages/MeshPhysicalMaterial.html): clearcoat, sheen e resposta ao ambiente. Esses recursos são usados com intensidades pequenas; a forma e a luz conduzem a leitura.
+- [Geometria de curvas no Blender](https://docs.blender.org/manual/en/2.90/modeling/curves/properties/geometry.html): princípios de perfil e afunilamento. O pipeline autoral constrói curvas Bézier e suas superfícies diretamente em malhas.

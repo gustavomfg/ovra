@@ -1,0 +1,18 @@
+[
+  {
+    "quality": "cinematic",
+    "triangles": 53668,
+    "model_draws": 36,
+    "bytes": 2144840,
+    "textures": 2,
+    "controls": 22
+  },
+  {
+    "quality": "optimized",
+    "triangles": 28520,
+    "model_draws": 36,
+    "bytes": 1565096,
+    "textures": 2,
+    "controls": 22
+  }
+]

@@ -45,6 +45,7 @@ screenshots
 .impeccable/review/
 storybook-static
 *.png.tmp
+*.blend[0-9]*
 *.webm
 *.mp4
 

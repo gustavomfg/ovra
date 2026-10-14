@@ -18,6 +18,12 @@ export const experiments: ExperimentDefinition[] = [
     title: "ENTITY 001 — AWAKENING",
     component: lazy(() => import("./entity-001/Entity001")),
   },
+  {
+    slug: "entity-002",
+    code: "002",
+    title: "ENTITY 002 — UMBRA",
+    component: lazy(() => import("./entity-002/Entity002")),
+  },
 ];
 
 export function findExperiment(slug: string) {

@@ -30,6 +30,7 @@
 
 | Código | Nome | Ideia |
 | --- | --- | --- |
+| 002 | [ENTITY 002 — UMBRA](docs/entity-002.md) | Um espectro encapuzado de sombra flutua sobre uma cidade gótica sob a lua eclipsada. Observa com olhos em brasa e sorriso de presas; a calma o deixa curioso e uma garra se estende, a pressa o faz recuar, o toque o faz rir. |
 | 001 | [ENTITY 001 — AWAKENING](docs/entity-001.md) | Uma cápsula mecânica que desperta, observa com atraso e responde com sete temperamentos. A ressonância abre suavemente as placas, modula a luz e mantém a entidade montada. |
 
 Uma performance audiovisual feita com código: a abertura de 11,8 s revela contorno, matéria e olhar. Aproxime o cursor devagar e permaneça para despertar curiosidade; movimentos rápidos acumulam tensão; o toque produz um pulso discreto de luz. Segure perto da entidade por 1,25 s, dê um duplo toque ou use o botão `metamorfose` para iniciar a ressonância contida de 8,8 s. O som é opcional e começa no botão `som`.

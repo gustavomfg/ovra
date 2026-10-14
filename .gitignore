@@ -46,6 +46,8 @@ screenshots
 storybook-static
 *.png.tmp
 *.blend[0-9]*
+__pycache__/
+*.py[cod]
 *.webm
 *.mp4
 

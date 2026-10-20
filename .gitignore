@@ -35,7 +35,11 @@ coverage
 # Local agent/session metadata
 .agents/
 .codex/
+.claude/
 .playwright-cli/
+
+# Local cloud credentials
+.aws/
 
 # Test reports and generated screenshots
 playwright-report
@@ -45,6 +49,9 @@ screenshots
 .impeccable/review/
 storybook-static
 *.png.tmp
+*.blend[0-9]*
+__pycache__/
+*.py[cod]
 *.webm
 *.mp4
 

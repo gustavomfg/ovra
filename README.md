@@ -1,119 +1,115 @@
-# OVRA
+# OVRA — Laboratório Visual
 
-> **Status: laboratório pessoal em evolução.** OVRA é um espaço para experimentos independentes de creative development: arte generativa, animações cinematográficas, WebGL, Three.js e interações experimentais. Não é um site institucional, um portfólio nem um produto.
+Um laboratório interativo de luz, matéria e ruído. Doze espécimes renderizados em tempo real com shaders GLSL, organizados em cinco famílias e abertos à experimentação.
 
-<p align="center">
-  <a href="https://gustavomfg.github.io/ovra/">Experiência publicada</a>
-  ·
-  <a href="#executar-localmente">Executar localmente</a>
-  ·
-  <a href="DESIGN.md">Sistema visual</a>
-  ·
-  <a href="docs/entity-001.md">ENTITY 001 — AWAKENING</a>
-</p>
+![Página inicial do OVRA no desktop, com tipografia sobre uma simulação de fluido](images/ovra-desktop.png)
 
-<p align="center">
-  <img alt="Three.js" src="https://img.shields.io/badge/Three.js-0.186-1f2937?logo=threedotjs&logoColor=white" />
-  <img alt="React" src="https://img.shields.io/badge/React-19-20232a?logo=react&logoColor=61dafb" />
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-6-1f2937?logo=typescript&logoColor=3178c6" />
-  <img alt="GSAP" src="https://img.shields.io/badge/GSAP-3-6b6b68" />
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-8-1f1b2d?logo=vite&logoColor=ffd166" />
-</p>
+## A experiência
 
-<p align="center">
-  <img src="images/ovra-entity-001.png" alt="ENTITY 001 — AWAKENING: cápsula mecânica com olho central, superfícies metálicas e arcos orbitais no vazio" width="1440" />
-</p>
+- **Éter interativo na abertura:** uma simulação de fluido que responde ao movimento do cursor.
+- **Catálogo vivo:** prévias animadas com filtros por família.
+- **Câmara de observação:** cada espécime ocupa a tela e oferece quatro parâmetros ajustáveis em tempo real.
+- **Experimente e copie:** restaure os valores iniciais ou copie os parâmetros atuais em JSON. Os ajustes são preservados ao navegar entre espécimes enquanto a câmara estiver aberta.
+- **Interface responsiva:** composição adaptada para desktop e celular, com animações, rolagem suave e cursor personalizado em dispositivos com ponteiro preciso.
 
-## Experimentos
+### Catálogo
 
-| Código | Nome | Ideia |
-| --- | --- | --- |
-| 001 | [ENTITY 001 — AWAKENING](docs/entity-001.md) | Uma cápsula mecânica que desperta, observa com atraso e responde com sete temperamentos. A ressonância abre suavemente as placas, modula a luz e mantém a entidade montada. |
+![Catálogo de espécimes do OVRA, com filtros e prévias WebGL](images/ovra-catalogue.png)
 
-Uma performance audiovisual feita com código: a abertura de 11,8 s revela contorno, matéria e olhar. Aproxime o cursor devagar e permaneça para despertar curiosidade; movimentos rápidos acumulam tensão; o toque produz um pulso discreto de luz. Segure perto da entidade por 1,25 s, dê um duplo toque ou use o botão `metamorfose` para iniciar a ressonância contida de 8,8 s. O som é opcional e começa no botão `som`.
+| Família | Espécimes |
+| --- | --- |
+| Fluido | Éter · Vórtice |
+| Luz | Iridescência · Véu · Prisma · Pilar |
+| Matéria | Ferrofluido · Metal Fundido |
+| Sinal | Terminal · Poeira |
+| Cosmos | Topografia · Galáxia |
 
-<details>
-  <summary>AWAKENING durante a ressonância</summary>
-  <p align="center">
-    <img src="images/ovra-awakening-resonance.png" alt="AWAKENING em ressonância: a mesma cápsula durante uma abertura controlada das placas, com luz e câmera suaves" width="1440" />
-  </p>
-</details>
+### Câmara de observação
 
-Cada experimento é uma pasta independente em `src/experiments/`. A lista fica em `src/experiments/registry.ts` e é carregada sob demanda: um experimento só é baixado quando aberto.
+Abra um cartão para explorar seu efeito, ajustar os controles e navegar pela coleção.
+
+![Câmara de observação do OVRA com um espécime e seu painel de parâmetros](images/ovra-chamber.png)
+
+| Ação | Como usar |
+| --- | --- |
+| Interagir com o efeito | Mova, arraste ou clique; a resposta depende do espécime |
+| Alterar parâmetros | Use os controles do painel |
+| Trocar de espécime | Botões Anterior/Próximo ou teclas `←` / `→` |
+| Restaurar parâmetros | Botão **Restaurar** |
+| Copiar os parâmetros em JSON | Botão **Copiar props**; requer acesso à área de transferência |
+| Fechar a câmara | Botão **Fechar** ou tecla `Esc` |
+
+### No celular
+
+<img src="images/ovra-mobile.png" alt="Página inicial do OVRA em uma tela de celular" width="320" />
+
+As imagens são capturas da aplicação. Os efeitos são renderizados pelo navegador, sem vídeos pré-gravados.
 
 ## Executar localmente
+
+Requisitos: **Node.js 22.12 ou superior**, npm e um navegador com suporte a **WebGL 2**. O Éter também requer `EXT_color_buffer_float` ou `EXT_color_buffer_half_float`.
 
 ```bash
 npm ci
 npm run dev
 ```
 
-O servidor de desenvolvimento usa o caminho de publicação do GitHub Pages:
+Acesse `http://localhost:5173/ovra/` na configuração padrão. Caso a porta esteja ocupada, use o endereço informado pelo Vite.
 
-```text
-/ovra/
-```
+As fontes Archivo, Instrument Serif e JetBrains Mono são carregadas pelo Google Fonts e dependem de conexão com a internet.
 
-Para outro caminho de publicação, defina `VITE_BASE_PATH` antes de compilar.
+## Comandos
 
-## Scripts
+| Comando | Finalidade |
+| --- | --- |
+| `npm run dev` | Inicia o servidor de desenvolvimento |
+| `npm run lint` | Executa o ESLint |
+| `npm run build` | Verifica os tipos e gera o site em `dist/` |
+| `npm run preview` | Serve o build de produção localmente |
 
-```bash
-npm run dev       # servidor de desenvolvimento
-npm run lint      # ESLint
-npm run test      # testes unitários e de componentes (Vitest)
-npm run build     # verificação de tipos e build de produção
-npm run test:pwa  # build e teste do PWA no Chromium (Playwright)
-npm run preview   # serve o build de produção
-```
+O ESLint verifica a aplicação e sua configuração; `src/components/` é excluído por conter componentes do registro React Bits. O build também verifica os tipos desses componentes.
 
-## Arquitetura
+## Tecnologias
+
+- **React 19 + TypeScript** para a interface e os controles.
+- **Vite 8** para desenvolvimento e build.
+- **WebGL 2 + GLSL** para os efeitos, com acesso direto à API do navegador.
+- **GSAP + ScrollTrigger** para transições e animações ligadas à rolagem.
+- **Lenis** para rolagem suave e **Motion** para efeitos de texto.
+- **React Bits** como origem dos componentes visuais registrados em `components.json`.
+
+Os shaders e a câmara usam carregamento sob demanda. As prévias são montadas apenas perto da área visível e suspensas quando a câmara abre, reduzindo a quantidade de contextos WebGL ativos.
+
+## Estrutura
 
 ```text
 src/
-  main.tsx                    inicialização e registro do service worker
-  app/                        shell: cabeçalho discreto, roteamento por hash e cortina entre experimentos
-  core/                       base reutilizável para qualquer experimento
-    camera.ts                 câmera orbital com movimento amortecido e objetivos tweenáveis
-    lighting.ts               ambiente HDR procedural (softboxes) para reflexos de metal
-    postprocessing.ts         bloom, antialiasing e acabamento (vinheta, grão, lente, ondulação)
-    frameLoop.ts              tempo da cena e passo físico; pausa com a aba oculta ou fora da tela
-    assets.ts                 carregamento de GLTF/GLB com cache e descarte de recursos
-    audio.ts                  ambiência opcional em Web Audio, desligada por padrão
-    spring.ts, math.ts, noise.ts, transitions.ts, capabilities.ts
-  experiments/
-    registry.ts               lista de experimentos (carregamento preguiçoso)
-    entity-001/               AWAKENING: modelo Blender, temperamento, percepção, performance e fallback
-public/3d/entity-001/          modelos Blender cinematic e optimized
-public/                       manifesto, service worker, ícone e página 404 do GitHub Pages
-tests/                        teste de offline do PWA e teste de navegador
-docs/entity-001.md            direção artística e especificação de comportamento
+├── App.tsx             # Composição da página e estado da câmara
+├── main.tsx            # Entrada da aplicação
+├── components/         # Shaders, cursor e efeitos visuais
+├── lab/
+│   ├── Hero.tsx        # Abertura, cabeçalho e indicadores
+│   ├── Manifesto.tsx   # Apresentação do laboratório
+│   ├── Catalogue.tsx   # Catálogo e filtros por família
+│   ├── Chamber.tsx     # Observação e ajuste de parâmetros
+│   ├── specimens.tsx   # Definições, controles e valores iniciais
+│   ├── primitives.tsx  # Montagem das prévias e elementos compartilhados
+│   ├── hooks.ts        # Preferência de movimento, relógio e FPS
+│   ├── Loader.tsx      # Sequência de entrada
+│   └── Footer.tsx      # Encerramento e retorno ao topo
+└── styles/global.css   # Estilos e adaptações de layout
+images/                 # Capturas utilizadas neste README
+public/icons/           # Ícone do projeto
 ```
-
-### Como criar um experimento
-
-1. Crie `src/experiments/<nome>/` com um componente padrão exportado (o componente é o ponto de entrada).
-2. Use `core/` para câmera, luz, pós-processamento, loop e recursos. Mantenha a lógica do experimento dentro da pasta.
-3. Registre em `src/experiments/registry.ts` com um `slug` (usado em `#/slug`), um `code` curto e o `lazy(() => import(...))`.
-4. Escreva testes para a lógica pura (sem WebGL) e um teste de montagem com `getContext` simulado, como em `Entity001.test.tsx`.
-
-### Modelos 3D
-
-AWAKENING usa os modelos Blender existentes em `public/3d/entity-001/`, com versões cinematic e optimized. A forma e os materiais de origem são preservados; a animação web atua sobre seus controles. Se o modelo falhar, uma cápsula procedural mantém a experiência. Para um experimento com modelo pronto, exporte um GLB/GLTF pelo Blender e carregue com `loadGltf` (`src/core/assets.ts`), que já faz cache e tenta de novo após uma falha. Siga o exemplo de propriedade de recursos em `Character`: cada montagem possui geometrias e materiais próprios, e o cache compartilhado não é descartado.
-
-## Qualidade e acessibilidade
-
-- **Movimento reduzido**: a entidade aparece assentada, sem intro, deriva, olhar seguindo o cursor ou movimento de câmera. Ativar a preferência durante uma sequência interrompe o movimento. A metamorfose vira um pulso suave de luz.
-- **Sem WebGL2**: o modo essencial desenha uma máscara procedural em canvas 2D e compartilha temperamento, percepção, relógio da performance e controles. Também assume a cena após uma perda de contexto WebGL.
-- **Recursos**: o render e o tempo narrativo param com a aba oculta, fora da tela ou com a área da cena zerada. Recursos da cena, pós-processamento, ambiente HDR e contexto WebGL são liberados ao desmontar; a resolução pode baixar em passos pequenos quando uma janela de quadros confirma lentidão.
-- **Áudio**: silencioso por padrão e só começa após ação explícita.
-- **Teclado**: os controles são botões nativos com foco visível; `metamorfose` oferece a mesma ação do gesto de segurar ou do duplo toque. O estado é anunciado sem interromper a leitura.
-- **Publicação**: GitHub Pages em [`/ovra/`](https://gustavomfg.github.io/ovra/). `VITE_BASE_PATH` e `base` em `vite.config.ts` usam o caminho atual do repositório.
 
 ## Publicação
 
-Pushes para `main` executam `.github/workflows/deploy.yml`: lint, testes, build, teste do PWA no Chromium e publicação de `dist/` no GitHub Pages.
+O workflow [deploy.yml](.github/workflows/deploy.yml) instala as dependências, executa o lint, gera o build e publica `dist/` no GitHub Pages. Ele é acionado por pushes em `main` ou manualmente pelo GitHub Actions. O repositório deve usar **GitHub Actions** como origem do Pages.
 
-## Licença e uso
+O caminho base padrão é `/ovra/`, definido em [vite.config.ts](vite.config.ts). Para hospedar na raiz de um domínio:
 
-Projeto pessoal de experimentação. Todo o código e as formas são originais. Mantenha os experimentos fiéis à ideia central: o visitante descobre o comportamento pela curiosidade, sem precisar ler explicações.
+```bash
+VITE_BASE_PATH=/ npm run build
+```
+
+Para outro subdiretório, substitua `/` pelo caminho desejado, incluindo a barra final. A mesma variável pode ser usada com `npm run dev`.

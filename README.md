@@ -1,60 +1,115 @@
-# OVRA
+# OVRA — Laboratório Visual
 
-Um laboratório pessoal de experiências visuais interativas em tempo real. O foco atual é **ENTITY 002 — UMBRA**: uma criatura de sombra que observa, hesita e reage ao visitante.
+Um laboratório interativo de luz, matéria e ruído. Doze espécimes renderizados em tempo real com shaders GLSL, organizados em cinco famílias e abertos à experimentação.
 
-[Experiência publicada](https://gustavomfg.github.io/ovra/) · [Direção visual](DESIGN.md) · [Personagem e implementação](docs/entity-002.md)
+![Página inicial do OVRA no desktop, com tipografia sobre uma simulação de fluido](images/ovra-desktop.png)
 
-![ENTITY 002 — UMBRA](images/ovra-entity-002.png)
+## A experiência
 
-UMBRA flutua no vazio. A máscara angular continua em uma coroa de lâminas, olhos magenta revelam pupilas estreitas e a matéria se prolonga em garras e camadas rasgadas. A abertura de 9,2 segundos revela o olhar antes do corpo. Aproxime o cursor com calma para despertar curiosidade; movimentos rápidos acumulam aversão. Clique ou use `provocar` para uma resposta discreta. O som é opcional.
+- **Éter interativo na abertura:** uma simulação de fluido que responde ao movimento do cursor.
+- **Catálogo vivo:** prévias animadas com filtros por família.
+- **Câmara de observação:** cada espécime ocupa a tela e oferece quatro parâmetros ajustáveis em tempo real.
+- **Experimente e copie:** restaure os valores iniciais ou copie os parâmetros atuais em JSON. Os ajustes são preservados ao navegar entre espécimes enquanto a câmara estiver aberta.
+- **Interface responsiva:** composição adaptada para desktop e celular, com animações, rolagem suave e cursor personalizado em dispositivos com ponteiro preciso.
 
-O personagem é uma interpretação 3D da imagem de referência fornecida pelo autor. ENTITY 001 foi retirado da implementação e dos assets ativos; seu histórico permanece no Git.
+### Catálogo
+
+![Catálogo de espécimes do OVRA, com filtros e prévias WebGL](images/ovra-catalogue.png)
+
+| Família | Espécimes |
+| --- | --- |
+| Fluido | Éter · Vórtice |
+| Luz | Iridescência · Véu · Prisma · Pilar |
+| Matéria | Ferrofluido · Metal Fundido |
+| Sinal | Terminal · Poeira |
+| Cosmos | Topografia · Galáxia |
+
+### Câmara de observação
+
+Abra um cartão para explorar seu efeito, ajustar os controles e navegar pela coleção.
+
+![Câmara de observação do OVRA com um espécime e seu painel de parâmetros](images/ovra-chamber.png)
+
+| Ação | Como usar |
+| --- | --- |
+| Interagir com o efeito | Mova, arraste ou clique; a resposta depende do espécime |
+| Alterar parâmetros | Use os controles do painel |
+| Trocar de espécime | Botões Anterior/Próximo ou teclas `←` / `→` |
+| Restaurar parâmetros | Botão **Restaurar** |
+| Copiar os parâmetros em JSON | Botão **Copiar props**; requer acesso à área de transferência |
+| Fechar a câmara | Botão **Fechar** ou tecla `Esc` |
+
+### No celular
+
+<img src="images/ovra-mobile.png" alt="Página inicial do OVRA em uma tela de celular" width="320" />
+
+As imagens são capturas da aplicação. Os efeitos são renderizados pelo navegador, sem vídeos pré-gravados.
 
 ## Executar localmente
+
+Requisitos: **Node.js 22.12 ou superior**, npm e um navegador com suporte a **WebGL 2**. O Éter também requer `EXT_color_buffer_float` ou `EXT_color_buffer_half_float`.
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Abra `/ovra/`. O mesmo base path é utilizado no GitHub Pages; `VITE_BASE_PATH` permite outra publicação.
+Acesse `http://localhost:5173/ovra/` na configuração padrão. Caso a porta esteja ocupada, use o endereço informado pelo Vite.
 
-```bash
-npm run lint      # ESLint
-npm test          # Vitest: lógica, montagem e ciclo de vida
-npm run build     # TypeScript e produção
-npm run test:pwa  # build e verificação offline no Chromium
-npm run preview   # serve o build
-```
+As fontes Archivo, Instrument Serif e JetBrains Mono são carregadas pelo Google Fonts e dependem de conexão com a internet.
 
-## Organização
+## Comandos
+
+| Comando | Finalidade |
+| --- | --- |
+| `npm run dev` | Inicia o servidor de desenvolvimento |
+| `npm run lint` | Executa o ESLint |
+| `npm run build` | Verifica os tipos e gera o site em `dist/` |
+| `npm run preview` | Serve o build de produção localmente |
+
+O ESLint verifica a aplicação e sua configuração; `src/components/` é excluído por conter componentes do registro React Bits. O build também verifica os tipos desses componentes.
+
+## Tecnologias
+
+- **React 19 + TypeScript** para a interface e os controles.
+- **Vite 8** para desenvolvimento e build.
+- **WebGL 2 + GLSL** para os efeitos, com acesso direto à API do navegador.
+- **GSAP + ScrollTrigger** para transições e animações ligadas à rolagem.
+- **Lenis** para rolagem suave e **Motion** para efeitos de texto.
+- **React Bits** como origem dos componentes visuais registrados em `components.json`.
+
+Os shaders e a câmara usam carregamento sob demanda. As prévias são montadas apenas perto da área visível e suspensas quando a câmara abre, reduzindo a quantidade de contextos WebGL ativos.
+
+## Estrutura
 
 ```text
-src/app/                        shell discreto e roteamento por hash
-src/core/                       câmera, molas, loop, áudio, cache e acabamento
-src/experiments/registry.ts      somente ENTITY 002, carregado sob demanda
-src/experiments/entity-002/      personagem, percepção, temperamento e cena
-public/3d/entity-002/            GLB cinematic/optimized e poster do modo essencial
-assets/source/entity-002/        Blender editável, referência e mapas PBR
-tools/blender/entity-002/        construção reproduzível e validação dos GLB
-docs/entity-002.md              direção, comportamento e decisões técnicas
+src/
+├── App.tsx             # Composição da página e estado da câmara
+├── main.tsx            # Entrada da aplicação
+├── components/         # Shaders, cursor e efeitos visuais
+├── lab/
+│   ├── Hero.tsx        # Abertura, cabeçalho e indicadores
+│   ├── Manifesto.tsx   # Apresentação do laboratório
+│   ├── Catalogue.tsx   # Catálogo e filtros por família
+│   ├── Chamber.tsx     # Observação e ajuste de parâmetros
+│   ├── specimens.tsx   # Definições, controles e valores iniciais
+│   ├── primitives.tsx  # Montagem das prévias e elementos compartilhados
+│   ├── hooks.ts        # Preferência de movimento, relógio e FPS
+│   ├── Loader.tsx      # Sequência de entrada
+│   └── Footer.tsx      # Encerramento e retorno ao topo
+└── styles/global.css   # Estilos e adaptações de layout
+images/                 # Capturas utilizadas neste README
+public/icons/           # Ícone do projeto
 ```
 
-React, TypeScript, Three.js, GSAP e Vite. A geometria e os materiais vêm do Blender; olhar, garras, tecido, iluminação e câmera são animados no navegador. Sem novas dependências npm.
+## Publicação
 
-## Assets
+O workflow [deploy.yml](.github/workflows/deploy.yml) instala as dependências, executa o lint, gera o build e publica `dist/` no GitHub Pages. Ele é acionado por pushes em `main` ou manualmente pelo GitHub Actions. O repositório deve usar **GitHub Actions** como origem do Pages.
+
+O caminho base padrão é `/ovra/`, definido em [vite.config.ts](vite.config.ts). Para hospedar na raiz de um domínio:
 
 ```bash
-blender -b --factory-startup --python tools/blender/entity-002/build_umbra.py -- cinematic optimized
-python3 tools/blender/entity-002/validate_asset.py
+VITE_BASE_PATH=/ npm run build
 ```
 
-As duas qualidades compartilham controles e identidade. Mapas de normal e rugosidade são incorporados aos modelos. Cada instância possui suas geometrias e materiais; as texturas do cache são compartilhadas. Backups `.blend1` e bytecode Python ficam fora do Git.
-
-## Cuidado técnico
-
-Movimento reduzido respeitado, renderização pausada com a aba oculta ou fora da tela, áudio desligado por padrão, controles por teclado e fallback após falha de modelo ou WebGL. O modo essencial usa uma captura do próprio personagem; olhos e sorriso em canvas continuam disponíveis se a imagem falhar.
-
-O PWA preserva o shell e os assets pequenos offline. GLB são armazenados quando buscados, sem baixar antecipadamente duas qualidades de modelo. Pushes para `main` executam lint, testes, build, verificação offline e publicação via GitHub Actions.
-
-O foco desta etapa é a aparência e o comportamento do personagem. A fidelidade à ilustração é uma interpretação, e não uma reconstrução fotogramétrica.
+Para outro subdiretório, substitua `/` pelo caminho desejado, incluindo a barra final. A mesma variável pode ser usada com `npm run dev`.

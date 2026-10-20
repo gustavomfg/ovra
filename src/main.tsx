@@ -1,17 +1,8 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot } from 'react-dom/client'
 
-import App from "./app/App.tsx";
-import "./styles/global.css";
+import App from '@/App'
+import '@/styles/global.css'
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
-
-if ("serviceWorker" in navigator && import.meta.env.PROD) {
-  void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, {
-    updateViaCache: "none",
-  });
-}
+// No StrictMode: several React Bits shaders release their WebGL context on unmount, so the
+// dev-only mount → unmount → mount cycle leaves them drawing into a lost (white) context.
+createRoot(document.getElementById('root')!).render(<App />)
